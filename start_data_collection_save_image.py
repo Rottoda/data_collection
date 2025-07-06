@@ -13,7 +13,8 @@ sys.path.append(os.path.abspath("./"))
 from TCP_IP_4Axis_Python.dobot_api import DobotApiDashboard, DobotApi, DobotApiMove, MyType, alarmAlarmJsonFile
 
 # 중심점
-CENTER_3D = np.array([338.04, 4.18, -135.66])
+# CENTER_3D = np.array([338.04, 4.18, -135.66])
+CENTER_3D = np.array([338.05, -19.31, -134.46])
 
 # 전역 변수
 current_actual = None
@@ -121,13 +122,13 @@ if __name__ == "__main__":
     print(f"[INFO] 이미지 저장 디렉토리 생성됨: {session_dir}")
 
     # 카메라 장치 열기
-    cap = cv2.VideoCapture(2)
+    cap = cv2.VideoCapture(1)
     if not cap.isOpened():
         print("❌ 카메라를 열 수 없습니다.")
         exit()
 
     # CSV 로딩 및 상대 좌표 → 절대 좌표 변환
-    df = pd.read_csv("./data_collection/relative_random_points.csv")
+    df = pd.read_csv("./data_collection/relative_random_points_v2.csv")
     absolute_points = df[["dX", "dY", "dZ"]].values + CENTER_3D
 
     # 도버 연결

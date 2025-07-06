@@ -39,7 +39,7 @@ def is_inside_ellipse(x, y):
     return ((x - center[0])**2) / a**2 + ((y - center[1])**2) / b**2 <= 1
 
 # 랜덤 포인트 생성 함수
-def generate_random_points_in_ellipse(n_points, z_min=CENTER_3D[2]-2.5, z_max=CENTER_3D[2]):
+def generate_random_points_in_ellipse(n_points, z_min=CENTER_3D[2]-DEPTH_Z, z_max=CENTER_3D[2]):
     samples = []
     x_min, x_max = center[0] - a, center[0] + a
     y_min, y_max = center[1] - b, center[1] + b
