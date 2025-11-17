@@ -244,3 +244,17 @@ if __name__ == "__main__":
         print(f" ERROR: CSV 파일을 찾을 수 없습니다. 경로: '{csv_path}'")
         print("좌표 생성 스크립트를 먼저 실행해주세요.")
         sys.exit()
+
+    # --- 3. 하드웨어 연결 (카메라 및 로봇) ---
+    cap = cv2.VideoCapture(CONFIG["camera_index"]) # 실제 사용하는 카메라 인덱스로 변경
+    if not cap.isOpened():
+        print("ERROR: 카메라를 열 수 없습니다.")
+        sys.exit()
+
+    dashboard, move, feed = ConnectRobot()
+    FT = FT_NI(samples=CONFIG["ft_samples"], rate=CONFIG["ft_rate"])
+    dashboard.EnableRobot()
+    print("[INFO] 로봇 활성화 완료.")
+
+    # 피드백 쓰레드 시작
+    threading.Thread(target=GetFeed, args=(feed,), daemon=True).start()
