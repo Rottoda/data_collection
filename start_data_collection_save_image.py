@@ -214,3 +214,20 @@ def CaptureImg(cap, origin_dir, bin_dir, index):
         print(f"  > 이미지 저장 완료: {img_filename} -> ORIG: {orig_path}, BIN: {bin_path}")
     else:
         print("카메라 프레임 캡처에 실패했습니다.")
+
+
+if __name__ == "__main__":
+    # --- 1. 기본 설정 및 디렉토리 생성 ---
+    try:
+        # 현재 스크립트가 있는 디렉토리를 기준으로 경로 설정
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        script_dir = os.getcwd()
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    session_dir = os.path.join(script_dir, "images", f"session_{timestamp}")
+    origin_dir = os.path.join(session_dir, "origin")
+    bin_dir = os.path.join(session_dir, "bin")
+    os.makedirs(origin_dir, exist_ok=True)
+    os.makedirs(bin_dir, exist_ok=True)
+    print(f"[INFO] 이미지 저장 디렉토리: {session_dir}")
