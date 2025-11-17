@@ -171,3 +171,19 @@ def GetFeed(feed: DobotApi):
                 enableStatus_robot = feedInfo['EnableStatus'][0]
                 robotErrorState = feedInfo['ErrorStatus'][0]
         sleep(0.001)
+
+# 목표 지점 도착 대기 함수 (원본과 동일)
+def WaitArrive(target_point):
+    """로봇이 목표 지점에 도착할 때까지 대기합니다."""
+    global current_actual
+    while True:
+        is_arrive = True
+        with globalLockValue:
+            if current_actual is not None:
+                for i in range(4): # X, Y, Z, R
+                    if abs(current_actual[i] - target_point[i]) > 1: # 1mm 오차 허용
+                        is_arrive = False
+                        break
+                if is_arrive:
+                    return
+        sleep(0.001)
