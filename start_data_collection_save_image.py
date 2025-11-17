@@ -258,3 +258,66 @@ if __name__ == "__main__":
 
     # 피드백 쓰레드 시작
     threading.Thread(target=GetFeed, args=(feed,), daemon=True).start()
+
+
+    # --- 4. 데이터 수집 루프 시작 ---
+    all_data = []  # 수집된 데이터 저장용 리스트
+    try:
+        # 로봇 이동 파라미터
+        user, tool, speed = 1, 1, CONFIG["robot_speed"]
+
+        print("\n[INFO] 데이터 수집을 시작합니다...")
+        for i, point in enumerate(absolute_points):
+            x, y, z = point
+            
+            # 안전한 중간 지점으로 먼저 이동
+            center_x, center_y = absolute_points[:, 0].mean(), absolute_points[:, 1].mean()
+            safe_center_z = absolute_points[:, 2].max() + CONFIG["safe_height_offset"]
+            
+            if i == 0:
+                initial_target = [center_x, center_y, safe_center_z, CONFIG["radi"]]
+                move.MovL(initial_target[0], initial_target[1], initial_target[2], initial_target[3], user, tool, speed)
+                WaitArrive(initial_target)
+                FT.calibration(CONFIG['ft_time'])  # FT 센서 캘리브레이션
+
+            print(f"--- [{i+1}/{len(absolute_points)}] 번째 포인트 처리 중 ---")
+            
+            # 누를 위치의 상단 (안전 높이)으로 이동
+            target_safe = [x, y, z + CONFIG["safe_height_offset"], CONFIG["radi"]]
+            print(f"  > 안전 위치로 이동: X={target_safe[0]:.2f}, Y={target_safe[1]:.2f}, Z={target_safe[2]:.2f}")
+            move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+            WaitArrive(target_safe)
+
+            # Z축을 내려서 목표 지점 누르기
+            target_press = [x, y, z, CONFIG["radi"]]
+            print(f"  > 목표 지점 누르기: X={target_press[0]:.2f}, Y={target_press[1]:.2f}, Z={target_press[2]:.2f}")
+            move.MovL(target_press[0], target_press[1], target_press[2], target_press[3], user, tool, speed)
+            WaitArrive(target_press)
+            sleep(0.5) # 누른 후 안정화를 위해 잠시 대기
+
+            # 이미지 촬영
+            CaptureImg(cap, origin_dir, bin_dir, i)
+
+            ft_data = FT.readFT_calibrated()
+            print(f"  > FT 데이터 측정: [Fx, Fy, Fz] = [{ft_data[0]:.3f}, {ft_data[1]:.3f}, {ft_data[2]:.3f}]")
+
+            # --- 측정된 데이터 기록 ---
+
+            # 원본 CSV의 해당 행 정보 가져오기
+            original_row = df.iloc[i].to_dict()
+            # FT 데이터 추가
+            original_row['Fx'] = ft_data[0]
+            original_row['Fy'] = ft_data[1]
+            original_row['Fz'] = ft_data[2]
+            original_row['Tx'] = ft_data[3]
+            original_row['Ty'] = ft_data[4]
+            original_row['Tz'] = ft_data[5]
+            # 수집된 데이터 리스트에 추가
+            all_data.append(original_row)
+
+            # 다시 안전 높이로 Z축 올리기
+            print(f"  > 안전 위치로 복귀 중...")
+            move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+            WaitArrive(target_safe)
+
+        print("\n[SUCCESS] 모든 포인트에 대한 데이터 수집을 완료했습니다.")
