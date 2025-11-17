@@ -136,7 +136,7 @@ enableStatus_robot = None
 robotErrorState = False
 globalLockValue = threading.Lock()
 
-# 로봇 연결 함수 (원본과 동일)
+
 def ConnectRobot():
     """로봇의 IP와 포트에 연결하고 API 인스턴스를 반환합니다."""
     ip = CONFIG['robot_ip']
@@ -150,7 +150,7 @@ def ConnectRobot():
     print("Connection successful.")
     return dashboard, move, feed
 
-# 로봇 피드백 수신 쓰레드 (원본과 동일)
+
 def GetFeed(feed: DobotApi):
     """로봇의 현재 상태를 실시간으로 수신하는 쓰레드 함수"""
     global current_actual, algorithm_queue, enableStatus_robot, robotErrorState
@@ -172,7 +172,7 @@ def GetFeed(feed: DobotApi):
                 robotErrorState = feedInfo['ErrorStatus'][0]
         sleep(0.001)
 
-# 목표 지점 도착 대기 함수 (원본과 동일)
+
 def WaitArrive(target_point):
     """로봇이 목표 지점에 도착할 때까지 대기합니다."""
     global current_actual
@@ -187,3 +187,30 @@ def WaitArrive(target_point):
                 if is_arrive:
                     return
         sleep(0.001)
+
+
+def CaptureImg(cap, origin_dir, bin_dir, index):
+    """카메라에서 이미지를 캡처하고 원본 및 이진화 이미지를 저장합니다."""
+    # 안정성을 위해 여러 번 읽기 시도
+    for _ in range(3): # 최대 3번 시도
+        ret, frame = cap.read()
+        if ret:
+            break # 성공하면 루프 탈출
+        sleep(0.1) # 실패 시 잠시 대기 후 재시도
+
+    if ret:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        binarized = cv2.adaptiveThreshold(
+            gray, 255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            51, 10
+        )
+        img_filename = f"{index:03d}.png"
+        orig_path = os.path.join(origin_dir, img_filename)
+        bin_path = os.path.join(bin_dir, img_filename)
+        cv2.imwrite(orig_path, frame)
+        cv2.imwrite(bin_path, binarized)
+        print(f"  > 이미지 저장 완료: {img_filename} -> ORIG: {orig_path}, BIN: {bin_path}")
+    else:
+        print("카메라 프레임 캡처에 실패했습니다.")
