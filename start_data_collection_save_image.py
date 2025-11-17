@@ -93,3 +93,9 @@ class FT_NI:
                     [1.16572, -19.72447, 0.49027, -19.51112, 0.54533, -19.30472]]
         offSetCorrection = self.rawData - np.transpose(bias)
         self.forces = np.dot(userAxis, np.transpose(offSetCorrection))
+
+    def readFT(self):
+        self.voltages = self.task.read(self.Nsamples)
+        self.rawData = np.mean(self.voltages,axis=1)
+        self.convertingRawData()
+        return self.forces
