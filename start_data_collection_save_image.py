@@ -231,3 +231,16 @@ if __name__ == "__main__":
     os.makedirs(origin_dir, exist_ok=True)
     os.makedirs(bin_dir, exist_ok=True)
     print(f"[INFO] 이미지 저장 디렉토리: {session_dir}")
+
+    # --- 2. STL 기반 좌표 데이터 로드 ---
+    # 좌표 생성 스크립트에서 만든 CSV 파일 경로
+    csv_path = os.path.join(script_dir, CONFIG['csv_filename'])
+    try:
+        df = pd.read_csv(csv_path)
+        # 로봇이 이동할 절대 좌표만 추출
+        absolute_points = df[['x', 'y', 'z']].values
+        print(f"[INFO] '{csv_path}'에서 {len(absolute_points)}개의 좌표를 로드했습니다.")
+    except FileNotFoundError:
+        print(f" ERROR: CSV 파일을 찾을 수 없습니다. 경로: '{csv_path}'")
+        print("좌표 생성 스크립트를 먼저 실행해주세요.")
+        sys.exit()
