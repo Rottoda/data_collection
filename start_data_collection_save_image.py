@@ -149,3 +149,25 @@ def ConnectRobot():
     feed = DobotApi(ip, feedPort)
     print("Connection successful.")
     return dashboard, move, feed
+
+# 로봇 피드백 수신 쓰레드 (원본과 동일)
+def GetFeed(feed: DobotApi):
+    """로봇의 현재 상태를 실시간으로 수신하는 쓰레드 함수"""
+    global current_actual, algorithm_queue, enableStatus_robot, robotErrorState
+    hasRead = 0
+    while True:
+        data = bytes()
+        while hasRead < 1440:
+            temp = feed.socket_dobot.recv(1440 - hasRead)
+            if len(temp) > 0:
+                hasRead += len(temp)
+                data += temp
+        hasRead = 0
+        feedInfo = np.frombuffer(data, dtype=MyType)
+        if hex((feedInfo['test_value'][0])) == '0x123456789abcdef':
+            with globalLockValue:
+                current_actual = feedInfo["tool_vector_actual"][0]
+                algorithm_queue = feedInfo['isRunQueuedCmd'][0]
+                enableStatus_robot = feedInfo['EnableStatus'][0]
+                robotErrorState = feedInfo['ErrorStatus'][0]
+        sleep(0.001)
