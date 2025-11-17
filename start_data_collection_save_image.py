@@ -62,7 +62,7 @@ class FT_NI:
             self.task.ai_channels.add_ai_voltage_chan("Dev1/ai0:5")
             self.task.timing.cfg_samp_clk_timing(self.Ratesamples, source="", active_edge=Edge.RISING, sample_mode=AcquisitionType.FINITE, samps_per_chan=11)
         except nidaqmx.errors.DaqError as e:
-            print(f"❌ ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
+            print(f" ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
             sys.exit()
         '''
         FTsetup 메서드는 NI DAQ 장치의 데이터 수집 작업을 설정
@@ -81,3 +81,15 @@ class FT_NI:
         'sample_mode=AcquisitionType.FINITE'는 샘플 수집 모드를 설정 / 정해진 수의 샘플을 수집하는 모드
         'samps_per_chan=11'는 채널당 수집할 샘플 수를 설정 / 각 채널에서 11개의 샘플을 수집함을 의미함 / 현재 6개의 채널(Fx~Tz)이므로 총 66개의 샘플을 수집
     '''
+        
+    def convertingRawData(self):
+        # For FT52560
+        bias = [0.1663, 1.5724, -0.0462, -0.0193, -0.0029, 0.0093]
+        userAxis = [[-1.46365, 0.26208, 1.93786, -34.19271, -1.16799, 32.94542],
+                    [-1.30893, 39.73726, -0.37039, -19.60236, 1.84250, -19.16761],
+                    [19.26259, -0.08643, 19.17027, -0.25200, 19.58193, -0.01857],
+                    [0.46529, 0.12592, -33.14392, 0.31541, 33.76824, -0.14065],
+                    [37.74417, -0.26852, -18.62546, 0.43466, -19.49703, 0.01865],
+                    [1.16572, -19.72447, 0.49027, -19.51112, 0.54533, -19.30472]]
+        offSetCorrection = self.rawData - np.transpose(bias)
+        self.forces = np.dot(userAxis, np.transpose(offSetCorrection))
