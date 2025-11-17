@@ -113,7 +113,7 @@ class FT_NI:
         if count > 0:
             self.offset = stacked_offset / count
         else:
-            print("⚠️ 경고: 캘리브레이션 중 데이터를 읽지 못했습니다.")
+            print(" 경고: 캘리브레이션 중 데이터를 읽지 못했습니다.")
             self.offset = np.zeros(6)
 
         print(f'캘리브레이션 완료. Offset: {self.offset}')
@@ -127,3 +127,25 @@ class FT_NI:
     def close(self):
         self.task.close()
         print("FT Sensor task closed.")
+
+
+# 전역 변수
+current_actual = None
+algorithm_queue = None
+enableStatus_robot = None
+robotErrorState = False
+globalLockValue = threading.Lock()
+
+# 로봇 연결 함수 (원본과 동일)
+def ConnectRobot():
+    """로봇의 IP와 포트에 연결하고 API 인스턴스를 반환합니다."""
+    ip = CONFIG['robot_ip']
+    dashboardPort = 29999
+    movePort = 30003
+    feedPort = 30004
+    print("Connecting to robot...")
+    dashboard = DobotApiDashboard(ip, dashboardPort)
+    move = DobotApiMove(ip, movePort)
+    feed = DobotApi(ip, feedPort)
+    print("Connection successful.")
+    return dashboard, move, feed
