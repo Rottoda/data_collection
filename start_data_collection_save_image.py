@@ -123,3 +123,7 @@ class FT_NI:
         if self.offset.sum() == 0:
             print("경고: 캘리브레이션이 수행되지 않았습니다. 원본 값을 반환합니다.")
         return self.readFT() - self.offset
+    
+    def close(self):
+        self.task.close()
+        print("FT Sensor task closed.")
