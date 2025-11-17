@@ -321,3 +321,24 @@ if __name__ == "__main__":
             WaitArrive(target_safe)
 
         print("\n[SUCCESS] 모든 포인트에 대한 데이터 수집을 완료했습니다.")
+
+    except KeyboardInterrupt:
+        print("\n[STOP] 사용자에 의해 프로그램이 중단되었습니다.")
+    finally:
+        # --- 5. 종료 처리 ---
+        print("[INFO] 로봇 및 센서를 종료합니다.")
+        # 최종 데이터 파일 저장
+        if all_data:
+            final_df = pd.DataFrame(all_data)
+            output_path = os.path.join(session_dir, "full_data.csv")
+            final_df.to_csv(output_path, index=False)
+            print(f"  > 최종 통합 데이터 저장 완료: {output_path}")
+
+        dashboard.DisableRobot()
+        print("  > 로봇 비활성화 완료.")
+        FT.close()
+        WaitArrive(target_safe)
+        if cap.isOpened():
+            cap.release()
+        cv2.destroyAllWindows()
+        print("  > 프로그램 종료.")
