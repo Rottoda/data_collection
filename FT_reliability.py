@@ -155,3 +155,11 @@ if __name__ == "__main__":
     dashboard.EnableRobot()
     print("[INFO] 로봇 활성화 완료.")
     threading.Thread(target=GetFeed, args=(feed,), daemon=True).start()
+
+    # --- 데이터 수집 루프 시작 ---
+    all_ft_data = []
+    try:
+        user, tool, speed = 1, 1, CONFIG["robot_speed"]
+        target_press = CONFIG["target_point_xyzr"]
+        target_safe = target_press.copy()
+        target_safe[2] += CONFIG["safe_height_offset"]
