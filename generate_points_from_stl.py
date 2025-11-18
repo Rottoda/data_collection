@@ -80,3 +80,11 @@ def main():
         session_dir = os.path.join(script_dir, "generated_points", f"session_{timestamp}")
         os.makedirs(session_dir, exist_ok=True)
         print(f"[INFO] 생성된 데이터 저장 경로: {session_dir}")
+
+        # --- 2. STL 파일 로드 및 축소 모델 생성 ---
+        print(f"'{CONFIG['stl_file_path']}' 파일을 로드합니다...")
+        mesh_original = trimesh.load_mesh(CONFIG['stl_file_path'])
+        
+        mesh_scaled = mesh_original.copy()
+        mesh_scaled.apply_scale(CONFIG['xy_sampling_scale'])
+        print(f"샘플링용 {CONFIG['xy_sampling_scale']*100}% 축소 모델 생성 완료.")
