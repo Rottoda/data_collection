@@ -196,3 +196,11 @@ if __name__ == "__main__":
     finally:
         # --- 종료 처리 ---
         print("[INFO] 로봇 및 센서를 종료합니다.")
+
+        # 최종 데이터 파일 저장
+        if all_ft_data:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"ft_reliability_test_{timestamp}.csv"
+            df = pd.DataFrame(all_ft_data, columns=['Fx', 'Fy', 'Fz'])
+            df.to_csv(filename, index_label="Repetition")
+            print(f"  > 테스트 결과 저장 완료: {filename}")
