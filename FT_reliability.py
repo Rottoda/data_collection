@@ -121,3 +121,28 @@ def WaitArrive(target_point):
             if current_actual is not None and np.all(np.abs(np.subtract(current_actual[:4], target_point[:4])) < 1):
                 return
         sleep(0.5)
+
+def plot_ft_data(data_history):
+    """수집된 FT 데이터를 6축으로 나누어 그래프로 보여줍니다."""
+    if not data_history:
+        print("플로팅할 데이터가 없습니다.")
+        return
+        
+    data_array = np.array(data_history)
+    labels = ['Fx', 'Fy', 'Fz']
+    colors = ['r', 'g', 'b']
+    
+    fig, axes = plt.subplots(3, 1, figsize=(15, 10))
+    fig.suptitle('FT Sensor Reliability Test Results', fontsize=16)
+    axes = axes.flatten()
+
+    for i in range(3):
+        ax = axes[i]
+        ax.plot(data_array[:, i], marker='o', linestyle='-', color=colors[i], markersize=4)
+        ax.set_title(labels[i])
+        ax.set_xlabel('Repetition Count')
+        ax.set_ylabel('Value')
+        ax.grid(True)
+    
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.show()
