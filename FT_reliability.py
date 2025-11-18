@@ -209,3 +209,6 @@ if __name__ == "__main__":
         print("  > 로봇 비활성화 완료.")
         FT.close()
         print("  > 프로그램 종료.")
+
+    # --- 최종 결과 플로팅 ---
+    plot_ft_data(all_ft_data)
