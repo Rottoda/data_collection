@@ -173,3 +173,8 @@ if __name__ == "__main__":
         print(f"\n[INFO] 총 {CONFIG['num_repetitions']}회 반복 테스트를 시작합니다...")
         for i in range(CONFIG['num_repetitions']):
             print(f"--- [{i+1}/{CONFIG['num_repetitions']}] 번째 측정 중 ---")
+
+            # 1. 목표 지점 누르기
+            move.MovL(target_press[0], target_press[1], target_press[2], target_press[3], user, tool, speed)
+            WaitArrive(target_press)
+            sleep(0.5) # 안정화 대기
