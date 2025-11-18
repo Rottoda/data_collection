@@ -120,3 +120,8 @@ def main():
 
         robot_target_points = np.array(robot_target_points)
         print("절대/상대 좌표 계산 완료.")
+
+        # --- 5. 수동 Z축 보정 적용 ---
+        if CONFIG['manual_z_correction'] != 0.0:
+            robot_target_points[:, 2] += CONFIG['manual_z_correction']
+            print(f"수동 Z축 보정 적용: {CONFIG['manual_z_correction']}mm")
