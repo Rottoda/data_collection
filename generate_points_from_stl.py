@@ -2,60 +2,135 @@ import trimesh
 import pandas as pd
 import numpy as np
 import random
+import os
+import matplotlib.pyplot as plt
 
-# --- 설정값 ---
-stl_file_path = 'C:/Users/PC/Desktop/Lee/Rottoda_TacTip/data_collection/tactip.stl'
-output_csv_path = 'hybrid_approach_points.csv'
-num_points = 500
-safe_approach_distance_mm = 3.0
-scale_factor_for_xy = 0.75 # X,Y 위치를 샘플링할 모델의 축소 비율
-
-# --------------------------------------------------------------------
-
-print(f"'{stl_file_path}' 파일을 로드합니다...")
-try:
-    # 1. 원본 100% 크기 모델 로드
-    mesh_100 = trimesh.load_mesh(stl_file_path)
-    print("원본(100%) 모델 로드 완료.")
-
-    # 2. X, Y 좌표 샘플링을 위한 축소 모델 생성
-    mesh_scaled = mesh_100.copy()
-    mesh_scaled.apply_scale(scale_factor_for_xy)
-    print(f"샘플링용 {scale_factor_for_xy*100}% 축소 모델 생성 완료.")
-
-    # 3. 축소된 모델 표면에서 점 샘플링
-    sampled_points_scaled, _ = trimesh.sample.sample_surface(mesh_scaled, num_points)
-    print(f"{num_points}개의 위치(X,Y) 샘플링 완료.")
-
-    # 4. 원본 모델과의 교차점을 찾기 위한 Ray-Mesh 교차 검사기 준비
-    intersector = trimesh.ray.RayMeshIntersector(mesh_100)
-
-    # 샘플링된 점들의 X, Y 좌표만 사용
-    ray_origins = sampled_points_scaled.copy()
-    ray_origins[:, 2] = mesh_100.bounds[1, 2] + 10 # 모델의 가장 높은 Z값보다 10mm 위에서 레이저를 쏨
+# ==================== 설정값 (여기만 수정하세요) ====================
+CONFIG = {
+    # 1. STL 파일의 전체 경로
+    "stl_file_path": "tactip.stl",
     
-    # 레이저 방향은 Z축 아래 방향 (-Z)
-    ray_directions = np.array([[0, 0, -1]] * num_points)
-
-    # 5. 레이캐스팅 실행: 광선을 쏴서 원본(100%) 모델 표면과의 교차점(실제 Z값)을 찾음
-    locations, _, _ = intersector.intersects_location(ray_origins, ray_directions)
-    print("레이캐스팅으로 원본 표면의 실제 Z좌표 계산 완료.")
+    # 2. 생성할 CSV 파일 이름
+    "output_csv_filename": "robot_press_points.csv",
     
-    final_points = locations.copy()
+    # 3. 생성할 총 포인트 개수
+    "n_points": 5000,
 
-    # 좌표계 오프셋 적용
-    offset = np.array([339, 6, -135.3])
-    final_points += offset
-    print("좌표계 오프셋 적용 완료.")
+    # 4. 로봇 좌표계 오프셋 (STL의 원점(x,y,z)에 해당하는 로봇의 실제 좌표)
+    "robot_origin_offset": np.array([339, 6, -112]),
 
-    # 모든 점을 Z축으로 safe_approach_distance_mm 만큼 위로 이동
-    final_points[:, 2] += safe_approach_distance_mm
-    print(f"안전 접근점 생성 완료.")
+    # 5. 샘플링할 모델의 축소 비율 (0.8 = 80%)
+    "xy_sampling_scale": 0.8,
 
-    # CSV 파일로 저장
-    df = pd.DataFrame(final_points, columns=['x', 'y', 'z'])
-    df.to_csv(output_csv_path, index=False)
-    print(f"성공적으로 '{output_csv_path}' 파일에 하이브리드 좌표를 저장했습니다.")
+    # 6. 중앙 집중 강도 
+    # 값이 작을수록 중앙에 더 강하게 집중 (예: 0.1)
+    "central_focus_strength": 0.1,
 
-except Exception as e:
-    print(f"오류가 발생했습니다: {e}")
+    # 7. 수동 Z축 보정값 (mm)
+    "manual_z_correction": -5.0,
+
+    # 8. 누르는 깊이 범위 (mm)
+    "min_press_depth_mm": 4.0, # 보정값과 9 이상 차이를 추천
+    "max_press_depth_mm": 6.0  # 보정값과 절대 15이상 벗어나지말 것
+}
+# =================================================================
+
+def visualize_results(mesh, absolute_points, origin_offset):
+    """생성된 결과를 3D 그래프로 시각화하는 함수"""
+    print("결과를 3D로 시각화합니다...")
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    mesh_vertices_local = mesh.vertices
+    absolute_points_local = absolute_points - (origin_offset + np.array([0,0,CONFIG['manual_z_correction']]))
+
+    ax.add_collection3d(plt.tripcolor(
+        mesh_vertices_local[:, 0], mesh_vertices_local[:, 1], mesh_vertices_local[:, 2],
+        triangles=mesh.faces, facecolor='cyan', alpha=0.1, edgecolor='gray', linewidth=0.1
+    ))
+    ax.scatter(
+        absolute_points_local[:, 0], absolute_points_local[:, 1], absolute_points_local[:, 2],
+        c='blue', s=10, label=f'Generated Press Points ({len(absolute_points)}개)'
+    )
+    ax.scatter(0, 0, 0, c='red', s=150, marker='x', label='STL Origin (Reference)')
+    ax.set_xlabel("X (mm)"); ax.set_ylabel("Y (mm)"); ax.set_zlabel("Z (mm)")
+    ax.set_title(f"Generated Points on {CONFIG['xy_sampling_scale']*100}% Scaled STL Model")
+    ax.legend()
+    
+    axis_limits = np.array([getattr(ax, f'get_{axis}lim')() for axis in 'xyz'])
+    ax.set_box_aspect(np.ptp(axis_limits, axis=1))
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    """메인 실행 함수"""
+    try:
+        # --- 1. STL 파일 로드 및 축소 모델 생성 ---
+        print(f"'{CONFIG['stl_file_path']}' 파일을 로드합니다...")
+        mesh_original = trimesh.load_mesh(CONFIG['stl_file_path'])
+        
+        mesh_scaled = mesh_original.copy()
+        mesh_scaled.apply_scale(CONFIG['xy_sampling_scale'])
+        print(f"샘플링용 {CONFIG['xy_sampling_scale']*100}% 축소 모델 생성 완료.")
+
+        # --- 2. 가우시안 분포를 이용한 중앙 집중형 포인트 생성 ---
+        # 모델의 중심점과 크기(표준편차 계산용)를 구함
+        center = mesh_scaled.centroid
+        extents = mesh_scaled.extents
+
+        # 집중 강도를 반영한 표준편차 계산
+        std_dev_x = extents[0] * CONFIG['central_focus_strength']
+        std_dev_y = extents[1] * CONFIG['central_focus_strength']
+
+        # 가우시안 분포로 X, Y 좌표 생성
+        rand_x = np.random.normal(loc=center[0], scale=std_dev_x, size=CONFIG['n_points'])
+        rand_y = np.random.normal(loc=center[1], scale=std_dev_y, size=CONFIG['n_points'])
+        
+        # Z좌표는 임시로 중심 Z값으로 설정
+        query_points = np.vstack([rand_x, rand_y, np.full(CONFIG['n_points'], center[2])]).T
+
+        # 생성된 (X,Y) 점에서 가장 가까운 표면의 (X,Y,Z)를 찾음
+        surface_points_scaled, _, _ = mesh_scaled.nearest.on_surface(query_points)
+        print(f"{len(surface_points_scaled)}개의 중앙 집중형 표면 좌표 생성 완료.")
+
+        # --- 3. 로봇이 누를 '절대 좌표' 및 학습용 '상대 좌표' 계산 ---
+        robot_target_points = []
+        relative_points = []
+
+        for surface_pt in surface_points_scaled:
+            random_depth = random.uniform(CONFIG['min_press_depth_mm'], CONFIG['max_press_depth_mm'])
+            press_point_scaled = surface_pt - np.array([0, 0, random_depth])
+            robot_target_points.append(press_point_scaled + CONFIG['robot_origin_offset'])
+            relative_points.append([surface_pt[0], surface_pt[1], -random_depth])
+
+        robot_target_points = np.array(robot_target_points)
+        print("절대/상대 좌표 계산 완료.")
+
+        # --- 4. 수동 Z축 보정 적용 ---
+        if CONFIG['manual_z_correction'] != 0.0:
+            robot_target_points[:, 2] += CONFIG['manual_z_correction']
+            print(f"수동 Z축 보정 적용: {CONFIG['manual_z_correction']}mm")
+
+        # --- 5. CSV 파일로 저장 ---
+        df_robot = pd.DataFrame(robot_target_points, columns=["x", "y", "z"])
+        df_relative = pd.DataFrame(relative_points, columns=["dX", "dY", "dZ"])
+        final_df = pd.concat([df_robot, df_relative], axis=1)
+
+        try:
+            script_path = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            script_path = os.getcwd()
+
+        output_path = os.path.join(script_path, CONFIG['output_csv_filename'])
+        final_df.to_csv(output_path, index=False)
+        print(f"CSV 저장 완료: {output_path}")
+
+        # --- 6. 3D 시각화 ---
+        visualize_results(mesh_scaled, robot_target_points, CONFIG['robot_origin_offset'])
+
+    except Exception as e:
+        print(f"오류가 발생했습니다: {e}")
+        print("STL 파일 경로, 라이브러리 설치 상태를 확인해주세요.")
+
+if __name__ == '__main__':
+    main()
