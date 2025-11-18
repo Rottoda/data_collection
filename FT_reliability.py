@@ -29,3 +29,12 @@ CONFIG = {
     "ft_calibration_time_sec": 1.0
 }
 # =====================================================================
+class FT_NI:
+    def __init__(self,**kwargs):
+        self.Nsamples = kwargs['samples']
+        self.Ratesamples = kwargs['rate']
+        self.task=nidaqmx.Task()
+        self.offset = np.asarray([.0,.0,.0,.0,.0,.0])
+        self.FTsetup()
+        self.task.read() # 안정화
+        print("FT Sensor Initialized.")
