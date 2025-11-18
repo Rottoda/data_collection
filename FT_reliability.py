@@ -163,3 +163,13 @@ if __name__ == "__main__":
         target_press = CONFIG["target_point_xyzr"]
         target_safe = target_press.copy()
         target_safe[2] += CONFIG["safe_height_offset"]
+
+        # --- FT 센서 캘리브레이션 ---
+        print("\n[INFO] 캘리브레이션을 위해 안전 위치로 이동합니다.")
+        move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+        WaitArrive(target_safe)
+        FT.calibration(CONFIG["ft_calibration_time_sec"])
+        
+        print(f"\n[INFO] 총 {CONFIG['num_repetitions']}회 반복 테스트를 시작합니다...")
+        for i in range(CONFIG['num_repetitions']):
+            print(f"--- [{i+1}/{CONFIG['num_repetitions']}] 번째 측정 중 ---")
