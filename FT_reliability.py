@@ -63,3 +63,16 @@ class FT_NI:
         self.rawData = np.mean(self.voltages,axis=1)
         self.convertingRawData()
         return self.forces
+
+    def calibration(self, second=1):
+        print(f'FT 센서 캘리브레이션을 {second}초 동안 시작합니다...')
+        start_time = time()
+        count = 0
+        stacked_offset = np.zeros(6)
+        while time() - start_time < second:
+            stacked_offset += self.readFT()
+            count += 1
+        if count > 0: self.offset = stacked_offset / count
+        else: print("⚠️ 경고: 캘리브레이션 중 데이터를 읽지 못했습니다."); self.offset = np.zeros(6)
+        print(f'캘리브레이션 완료. Offset: {np.round(self.offset, 3)}')
+        return self.offset
