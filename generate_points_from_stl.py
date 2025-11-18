@@ -143,3 +143,11 @@ def main():
         # --- 7. 3D 시각화 ---
         output_graph_path = os.path.join(session_dir, "points_distribution.png")
         visualize_results(mesh_scaled, robot_target_points[:, :3], CONFIG['robot_origin_offset'], output_graph_path)
+
+
+    except Exception as e:
+        print(f"오류가 발생했습니다: {e}")
+        print("STL 파일 경로, 라이브러리 설치 상태를 확인해주세요.")
+
+if __name__ == '__main__':
+    main()
