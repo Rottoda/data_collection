@@ -113,3 +113,11 @@ def GetFeed(feed: DobotApi):
         if hex((feedInfo['test_value'][0])) == '0x123456789abcdef':
             with globalLockValue: current_actual = feedInfo["tool_vector_actual"][0]
         sleep(0.001)
+
+def WaitArrive(target_point):
+    global current_actual
+    while True:
+        with globalLockValue:
+            if current_actual is not None and np.all(np.abs(np.subtract(current_actual[:4], target_point[:4])) < 1):
+                return
+        sleep(0.5)
