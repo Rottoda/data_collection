@@ -204,3 +204,8 @@ if __name__ == "__main__":
             df = pd.DataFrame(all_ft_data, columns=['Fx', 'Fy', 'Fz'])
             df.to_csv(filename, index_label="Repetition")
             print(f"  > 테스트 결과 저장 완료: {filename}")
+
+        dashboard.DisableRobot()
+        print("  > 로봇 비활성화 완료.")
+        FT.close()
+        print("  > 프로그램 종료.")
