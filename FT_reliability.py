@@ -99,3 +99,17 @@ def ConnectRobot():
         return dashboard, move, feed
     except Exception as e:
         print(f"❌ ERROR: 로봇 연결에 실패했습니다. ({e})"); sys.exit()
+
+def GetFeed(feed: DobotApi):
+    global current_actual
+    hasRead = 0
+    while True:
+        data = bytes();
+        while hasRead < 1440:
+            temp = feed.socket_dobot.recv(1440 - hasRead)
+            if len(temp) > 0: hasRead += len(temp); data += temp
+        hasRead = 0
+        feedInfo = np.frombuffer(data, dtype=MyType)
+        if hex((feedInfo['test_value'][0])) == '0x123456789abcdef':
+            with globalLockValue: current_actual = feedInfo["tool_vector_actual"][0]
+        sleep(0.001)
