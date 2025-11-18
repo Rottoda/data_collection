@@ -6,33 +6,26 @@ import os
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-# ==================== 설정값 (여기만 수정하세요) ====================
+# =========================== 설정값 ============================
 CONFIG = {
-    # 1. STL 파일의 전체 경로
+    # STL 파일의 전체 경로
     "stl_file_path": "tactip.stl",
     
-    # 2. 생성할 CSV 파일 이름
-    "output_csv_filename": "robot_press_points.csv",
-    
-    # 3. 생성할 총 포인트 개수
-    "n_points": 5000,
+    # 생성할 총 포인트 개수
+    "n_points": 100,
 
-    # 4. 로봇 좌표계 오프셋 (STL의 원점(x,y,z)에 해당하는 로봇의 실제 좌표)
-    "robot_origin_offset": np.array([339, 6, -112]),
+    # 로봇 좌표계 오프셋 (STL의 원점(x,y,z)에 해당하는 로봇의 실제 좌표)
+    "robot_origin_offset": np.array([339, 6, -116]),
 
-    # 5. 샘플링할 모델의 축소 비율 (0.8 = 80%)
-    "xy_sampling_scale": 0.8,
+    # 샘플링할 모델의 축소 비율 (0.8 = 80%)
+    "xy_sampling_scale": 1.0,
 
-    # 6. 중앙 집중 강도 
-    # 값이 작을수록 중앙에 더 강하게 집중 (예: 0.1)
+    # 중앙 집중 강도 - 값이 작을수록 중앙에 더 강하게 집중 (예: 0.1)
     "central_focus_strength": 0.1,
 
-    # 7. 수동 Z축 보정값 (mm)
-    "manual_z_correction": -5.0,
-
-    # 8. 누르는 깊이 범위 (mm)
-    "min_press_depth_mm": 4.0, # 보정값과 9 이상 차이를 추천
-    "max_press_depth_mm": 6.0  # 보정값과 절대 15이상 벗어나지말 것
+    # 누르는 깊이 범위 (mm)
+    "min_press_depth_mm": 2.0, # 보정값과 9 이상 차이를 추천
+    "max_press_depth_mm": 5.0  # 보정값과 절대 11이상 벗어나지말 것
 }
 # =================================================================
 
@@ -43,7 +36,7 @@ def visualize_results(mesh, absolute_points, origin_offset, save_path):
     ax = fig.add_subplot(111, projection='3d')
 
     mesh_vertices_local = mesh.vertices
-    absolute_points_local = absolute_points - (origin_offset + np.array([0,0,CONFIG['manual_z_correction']]))
+    absolute_points_local = absolute_points - origin_offset
 
     ax.add_collection3d(plt.tripcolor(
         mesh_vertices_local[:, 0], mesh_vertices_local[:, 1], mesh_vertices_local[:, 2],
@@ -90,6 +83,7 @@ def main():
         print(f"샘플링용 {CONFIG['xy_sampling_scale']*100}% 축소 모델 생성 완료.")
 
         # --- 3. 가우시안 분포를 이용한 중앙 집중형 포인트 생성 ---
+        # 모델의 중심점과 크기(표준편차 계산용)를 구함
         center = mesh_scaled.centroid
         extents = mesh_scaled.extents
 
@@ -121,12 +115,7 @@ def main():
         robot_target_points = np.array(robot_target_points)
         print("절대/상대 좌표 계산 완료.")
 
-        # --- 5. 수동 Z축 보정 적용 ---
-        if CONFIG['manual_z_correction'] != 0.0:
-            robot_target_points[:, 2] += CONFIG['manual_z_correction']
-            print(f"수동 Z축 보정 적용: {CONFIG['manual_z_correction']}mm")
-
-        # --- 6. CSV 파일로 저장 ---
+        # --- 5. CSV 파일로 저장 ---
         df_robot = pd.DataFrame(robot_target_points, columns=["x", "y", "z"])
         df_relative = pd.DataFrame(relative_points, columns=["dX", "dY", "dZ"])
         final_df = pd.concat([df_robot, df_relative], axis=1)
@@ -143,7 +132,6 @@ def main():
         # --- 7. 3D 시각화 ---
         output_graph_path = os.path.join(session_dir, "points_distribution.png")
         visualize_results(mesh_scaled, robot_target_points[:, :3], CONFIG['robot_origin_offset'], output_graph_path)
-
 
     except Exception as e:
         print(f"오류가 발생했습니다: {e}")
