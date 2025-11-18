@@ -8,7 +8,6 @@ import cv2
 from datetime import datetime
 import nidaqmx
 from nidaqmx.constants import AcquisitionType, Edge
-import keyboard
 
 # ============================== 설정값 ===============================
 CONFIG = {
