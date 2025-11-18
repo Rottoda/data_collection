@@ -107,3 +107,16 @@ def main():
         # 생성된 (X,Y) 점에서 가장 가까운 표면의 (X,Y,Z)를 찾음
         surface_points_scaled, _, _ = mesh_scaled.nearest.on_surface(query_points)
         print(f"{len(surface_points_scaled)}개의 중앙 집중형 표면 좌표 생성 완료.")
+
+        # --- 4. 로봇이 누를 '절대 좌표' 및 학습용 '상대 좌표' 계산 ---
+        robot_target_points = []
+        relative_points = []
+
+        for surface_pt in surface_points_scaled:
+            random_depth = random.uniform(CONFIG['min_press_depth_mm'], CONFIG['max_press_depth_mm'])
+            press_point_scaled = surface_pt - np.array([0, 0, random_depth])
+            robot_target_points.append(press_point_scaled + CONFIG['robot_origin_offset'])
+            relative_points.append([surface_pt[0], surface_pt[1], -random_depth])
+
+        robot_target_points = np.array(robot_target_points)
+        print("절대/상대 좌표 계산 완료.")
