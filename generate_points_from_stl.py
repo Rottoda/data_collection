@@ -125,3 +125,17 @@ def main():
         if CONFIG['manual_z_correction'] != 0.0:
             robot_target_points[:, 2] += CONFIG['manual_z_correction']
             print(f"수동 Z축 보정 적용: {CONFIG['manual_z_correction']}mm")
+
+        # --- 6. CSV 파일로 저장 ---
+        df_robot = pd.DataFrame(robot_target_points, columns=["x", "y", "z"])
+        df_relative = pd.DataFrame(relative_points, columns=["dX", "dY", "dZ"])
+        final_df = pd.concat([df_robot, df_relative], axis=1)
+
+        try:
+            script_path = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            script_path = os.getcwd()
+
+        output_csv_path = os.path.join(session_dir, "generated_points.csv")
+        final_df.to_csv(output_csv_path, index=False)
+        print(f"CSV 저장 완료: {output_csv_path}")
