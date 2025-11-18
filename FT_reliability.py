@@ -183,3 +183,8 @@ if __name__ == "__main__":
             ft_data = FT.readFT_calibrated()
             all_ft_data.append(ft_data[:3])
             print(f"  > FT 데이터 측정: [Fx, Fy, Fz] = [{ft_data[0]:.3f}, {ft_data[1]:.3f}, {ft_data[2]:.3f}]")
+
+            # 3. 안전 위치로 복귀
+            move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+            WaitArrive(target_safe)
+            sleep(0.8) # 다음 측정을 위한 대기
