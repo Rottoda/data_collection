@@ -190,3 +190,9 @@ if __name__ == "__main__":
             sleep(0.8) # 다음 측정을 위한 대기
 
         print("\n[SUCCESS] 모든 측정을 완료했습니다.")
+
+    except KeyboardInterrupt:
+        print("\n[STOP] 사용자에 의해 프로그램이 중단되었습니다.")
+    finally:
+        # --- 종료 처리 ---
+        print("[INFO] 로봇 및 센서를 종료합니다.")
