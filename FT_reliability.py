@@ -76,3 +76,6 @@ class FT_NI:
         else: print("⚠️ 경고: 캘리브레이션 중 데이터를 읽지 못했습니다."); self.offset = np.zeros(6)
         print(f'캘리브레이션 완료. Offset: {np.round(self.offset, 3)}')
         return self.offset
+
+    def readFT_calibrated(self):
+        return self.readFT() - self.offset
