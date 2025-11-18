@@ -4,6 +4,7 @@ import numpy as np
 import random
 import os
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 # ==================== 설정값 (여기만 수정하세요) ====================
 CONFIG = {
@@ -65,3 +66,17 @@ def visualize_results(mesh, absolute_points, origin_offset, save_path):
     plt.savefig(save_path)
     print(f"그래프 이미지 저장 완료: {save_path}")
     plt.show(block=False)
+
+def main():
+    """메인 실행 함수"""
+    try:
+        # --- 1. 세션 디렉토리 생성 ---
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            script_dir = os.getcwd()
+            
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        session_dir = os.path.join(script_dir, "generated_points", f"session_{timestamp}")
+        os.makedirs(session_dir, exist_ok=True)
+        print(f"[INFO] 생성된 데이터 저장 경로: {session_dir}")
