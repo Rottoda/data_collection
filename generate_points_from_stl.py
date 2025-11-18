@@ -88,3 +88,22 @@ def main():
         mesh_scaled = mesh_original.copy()
         mesh_scaled.apply_scale(CONFIG['xy_sampling_scale'])
         print(f"샘플링용 {CONFIG['xy_sampling_scale']*100}% 축소 모델 생성 완료.")
+
+        # --- 3. 가우시안 분포를 이용한 중앙 집중형 포인트 생성 ---
+        center = mesh_scaled.centroid
+        extents = mesh_scaled.extents
+
+        # 집중 강도를 반영한 표준편차 계산
+        std_dev_x = extents[0] * CONFIG['central_focus_strength']
+        std_dev_y = extents[1] * CONFIG['central_focus_strength']
+
+        # 가우시안 분포로 X, Y 좌표 생성
+        rand_x = np.random.normal(loc=center[0], scale=std_dev_x, size=CONFIG['n_points'])
+        rand_y = np.random.normal(loc=center[1], scale=std_dev_y, size=CONFIG['n_points'])
+        
+        # Z좌표는 임시로 중심 Z값으로 설정
+        query_points = np.vstack([rand_x, rand_y, np.full(CONFIG['n_points'], center[2])]).T
+
+        # 생성된 (X,Y) 점에서 가장 가까운 표면의 (X,Y,Z)를 찾음
+        surface_points_scaled, _, _ = mesh_scaled.nearest.on_surface(query_points)
+        print(f"{len(surface_points_scaled)}개의 중앙 집중형 표면 좌표 생성 완료.")
