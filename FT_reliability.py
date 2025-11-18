@@ -188,3 +188,5 @@ if __name__ == "__main__":
             move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
             WaitArrive(target_safe)
             sleep(0.8) # 다음 측정을 위한 대기
+
+        print("\n[SUCCESS] 모든 측정을 완료했습니다.")
