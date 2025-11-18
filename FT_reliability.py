@@ -79,3 +79,7 @@ class FT_NI:
 
     def readFT_calibrated(self):
         return self.readFT() - self.offset
+    
+    def close(self):
+        self.task.close()
+        print("FT Sensor task closed.")
