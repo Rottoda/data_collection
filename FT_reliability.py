@@ -83,3 +83,19 @@ class FT_NI:
     def close(self):
         self.task.close()
         print("FT Sensor task closed.")
+
+current_actual = None
+globalLockValue = threading.Lock()
+
+def ConnectRobot():
+    ip = "192.168.1.6"
+    dashboardPort = 29999; movePort = 30003; feedPort = 30004
+    print("Connecting to robot...")
+    try:
+        dashboard = DobotApiDashboard(ip, dashboardPort)
+        move = DobotApiMove(ip, movePort)
+        feed = DobotApi(ip, feedPort)
+        print("Connection successful.")
+        return dashboard, move, feed
+    except Exception as e:
+        print(f"❌ ERROR: 로봇 연결에 실패했습니다. ({e})"); sys.exit()
