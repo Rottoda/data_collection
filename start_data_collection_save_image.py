@@ -246,41 +246,10 @@ if __name__ == "__main__":
         sys.exit()
 
     # --- 3. 하드웨어 연결 (카메라 및 로봇) ---
-    cap = cv2.VideoCapture(CONFIG["camera_index"]) # 실제 사용하는 카메라 인덱스로 변경
+    cap = cv2.VideoCapture(CONFIG["camera_index"], cv2.CAP_DSHOW) # 실제 사용하는 카메라 인덱스로 변경
     if not cap.isOpened():
         print("ERROR: 카메라를 열 수 없습니다.")
         sys.exit()
-
-# --- 카메라 수동 설정 시작 ---
-    print("[INFO] 카메라 설정을 수동으로 고정합니다...")
-
-    # 일부 카메라는 자동 설정을 먼저 풀어야 수동 설정이 먹힙니다.
-    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)      # 자동 초점 끄기
-    cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)  # 자동 노출 끄기 (주의: 1이 수동 모드인 경우도 있음)
-    cap.set(cv2.CAP_PROP_AUTO_WB, 0)        # 자동 화이트 밸런스 끄기
-
-    # 노출 시간(Exposure Time)을 수동으로 설정합니다.
-    # 값은 -1 ~ -13 사이의 정수이며, 작을수록 노출이 길어집니다.
-    # -6 정도(약 15.6ms)에서 시작해서, -4 ~ -8 사이의 값을 테스트해보세요.
-    # 너무 밝거나 어두우면 이 값을 조절해야 합니다.
-    EXPOSURE_VALUE = -6 
-    cap.set(cv2.CAP_PROP_EXPOSURE, EXPOSURE_VALUE)
-
-    # 기타 설정 고정 (필요 시 조절)
-    cap.set(cv2.CAP_PROP_BRIGHTNESS, 128) # 밝기 (0-255)
-    cap.set(cv2.CAP_PROP_CONTRAST, 128)  # 대비 (0-255)
-    cap.set(cv2.CAP_PROP_GAIN, 0)         # 게인 (증폭)
-
-    # 설정이 적용될 시간을 잠시 줍니다.
-    sleep(1)
-
-    # 적용된 설정 값 확인
-    print(f"  > 자동 노출: {cap.get(cv2.CAP_PROP_AUTO_EXPOSURE)}")
-    print(f"  > 노출 시간: {cap.get(cv2.CAP_PROP_EXPOSURE)} (설정값: {EXPOSURE_VALUE})")
-    print(f"  > 밝기: {cap.get(cv2.CAP_PROP_BRIGHTNESS)}")
-    print(f"  > 대비: {cap.get(cv2.CAP_PROP_CONTRAST)}")
-    print("[INFO] 카메라 설정 완료.")
-    # --- 카메라 수동 설정 끝 ---
 
     dashboard, move, feed = ConnectRobot()
     FT = FT_NI(samples=CONFIG["ft_samples"], rate=CONFIG["ft_rate"])
@@ -289,7 +258,7 @@ if __name__ == "__main__":
 
     # 피드백 쓰레드 시작
     threading.Thread(target=GetFeed, args=(feed,), daemon=True).start()
-
+    
 
     # --- 4. 데이터 수집 루프 시작 ---
     all_data = []  # 수집된 데이터 저장용 리스트
