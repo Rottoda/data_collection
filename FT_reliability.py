@@ -146,3 +146,12 @@ def plot_ft_data(data_history):
     
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.show()
+
+if __name__ == "__main__":
+    # --- 하드웨어 초기화 ---
+    dashboard, move, feed = ConnectRobot()
+    FT = FT_NI(samples=CONFIG["ft_samples"], rate=CONFIG["ft_rate"])
+    
+    dashboard.EnableRobot()
+    print("[INFO] 로봇 활성화 완료.")
+    threading.Thread(target=GetFeed, args=(feed,), daemon=True).start()
