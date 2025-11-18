@@ -38,3 +38,11 @@ class FT_NI:
         self.FTsetup()
         self.task.read() # 안정화
         print("FT Sensor Initialized.")
+
+    def FTsetup(self):
+        try:
+            self.task.ai_channels.add_ai_voltage_chan("Dev1/ai0:5")
+            self.task.timing.cfg_samp_clk_timing(self.Ratesamples, source="", active_edge=Edge.RISING, sample_mode=AcquisitionType.FINITE, samps_per_chan=11)
+        except nidaqmx.errors.DaqError as e:
+            print(f"❌ ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
+            sys.exit()
