@@ -300,3 +300,19 @@ if __name__ == "__main__":
     final_position_reached = False
     go_back_to_safe = False
     target_safe = []
+
+
+    try:
+        target_press_xyz = calculate_origin_target(CONFIG)
+        target_press = [target_press_xyz[0], target_press_xyz[1], target_press_xyz[2], CONFIG["radi"]]
+
+        dashboard, move, feed = ConnectRobot(CONFIG["robot_ip"])
+        if dashboard is None:
+            raise ConnectionError("로봇 연결 실패")
+
+        ft_sensor_available = True
+        try:
+            FT = FT_NI(samples=CONFIG["ft_samples"], rate=CONFIG["ft_rate"])
+        except ConnectionError as e:
+            print(e); print("경고: FT 센서 없이 진행합니다.")
+            ft_sensor_available = False; FT = None
