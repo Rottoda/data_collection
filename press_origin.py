@@ -168,3 +168,71 @@ def ConnectRobot(ip, dashboardPort=29999, movePort=30003, feedPort=30004):
     except Exception as e:
         print(f"로봇 연결 실패: {e}")
         return None, None, None
+    
+def GetFeed(feed: DobotApi):
+    global current_actual, algorithm_queue, enableStatus_robot, robotErrorState, feed_thread_running # 종료 플래그 사용
+    hasRead = 0
+    feed.socket_dobot.settimeout(1.0)
+
+    print("피드백 스레드 시작.")
+    while feed_thread_running:
+        data = bytes()
+        try:
+            while hasRead < 1440 and feed_thread_running:
+                try:
+                    temp = feed.socket_dobot.recv(1440 - hasRead)
+                except socket.timeout:
+                    sleep(0.1) 
+                    continue 
+                except ConnectionAbortedError: 
+                     print("피드백 소켓 연결 종료됨 (Aborted).")
+                     with globalLockValue: robotErrorState = True
+                     break
+                except OSError as oe:
+                     print(f"피드 소켓 오류: {oe}")
+                     with globalLockValue: robotErrorState = True
+                     break
+
+                if len(temp) == 0:
+                    print("로봇 피드 연결 끊김.")
+                    with globalLockValue:
+                        current_actual = None; enableStatus_robot = None; robotErrorState = True
+                    break
+                hasRead += len(temp)
+                data += temp
+
+            if not feed_thread_running or robotErrorState: 
+                 break
+            if hasRead == 0:
+                sleep(0.5)
+                continue
+
+            hasRead = 0
+            if len(data) == 1440: 
+                feedInfo = np.frombuffer(data, dtype=MyType)
+                if 'test_value' in feedInfo.dtype.names and \
+                   hex(feedInfo['test_value'][0]) == '0x123456789abcdef':
+                    with globalLockValue:
+                        current_actual = feedInfo["tool_vector_actual"][0]
+                        algorithm_queue = feedInfo['isRunQueuedCmd'][0]
+                        enableStatus_robot = feedInfo['EnableStatus'][0]
+                        
+                else:
+                    pass 
+            else:
+                pass 
+
+            sleep(0.02)
+
+        except BlockingIOError:
+            sleep(0.05)
+        except ConnectionResetError:
+            print("로봇 피드 연결 재설정됨.")
+            with globalLockValue: current_actual=None; enableStatus_robot=None; robotErrorState=True
+            sleep(2)
+        except Exception as e:
+            print(f"피드 수신 중 예상치 못한 예외 발생: {e}")
+            with globalLockValue: current_actual=None; enableStatus_robot=None; robotErrorState=True
+            sleep(1)
+
+    print("피드백 스레드 종료.") # 스레드 종료 시 메시지 출력
