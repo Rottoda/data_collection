@@ -47,19 +47,18 @@ class FT_NI:
         self.Nsamples = kwargs['samples']
         self.Ratesamples = kwargs['rate']
         self.task=nidaqmx.Task()
-        self.offset = np.asarray([.0,.0,.0,.0,.0,.0])
+        self.current_offset = np.asarray([.0,.0,.0,.0,.0,.0])
         self.FTsetup()
-        # 초기화 시 데이터 한번 읽기 (안정화)
-        self.task.read()
         print("FT Sensor Initialized.")
 
     def FTsetup(self):
         try:
             self.task.ai_channels.add_ai_voltage_chan("Dev1/ai0:5")
-            self.task.timing.cfg_samp_clk_timing(self.Ratesamples, source="", active_edge=Edge.RISING, sample_mode=AcquisitionType.FINITE, samps_per_chan=11)
+            self.task.timing.cfg_samp_clk_timing(self.Ratesamples, source="", active_edge=Edge.RISING, sample_mode=AcquisitionType.FINITE, samps_per_chan=100)
         except nidaqmx.errors.DaqError as e:
-            print(f" ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
+            print(f"ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
             sys.exit()
+
         '''
         FTsetup 메서드는 NI DAQ 장치의 데이터 수집 작업을 설정
         아날로그 입력 채널을 추가하고, 샘플 클럭 타이밍을 구성
@@ -76,8 +75,9 @@ class FT_NI:
         'active_edge=Edge.RISING'는 샘플 클럭의 활성 에지를 설정 / Edge.RISING은 상승 에지에서 샘플을 수집함을 의미
         'sample_mode=AcquisitionType.FINITE'는 샘플 수집 모드를 설정 / 정해진 수의 샘플을 수집하는 모드
         'samps_per_chan=11'는 채널당 수집할 샘플 수를 설정 / 각 채널에서 11개의 샘플을 수집함을 의미함 / 현재 6개의 채널(Fx~Tz)이므로 총 66개의 샘플을 수집
-    '''
-        
+        '''
+
+
     def convertingRawData(self):
         # For FT52560
         bias = [0.1663, 1.5724, -0.0462, -0.0193, -0.0029, 0.0093]
@@ -95,31 +95,26 @@ class FT_NI:
         self.rawData = np.mean(self.voltages,axis=1)
         self.convertingRawData()
         return self.forces
-    
-    def calibration(self, second=CONFIG['ft_time']):
-        print(f'FT 센서 캘리브레이션을 {second}초 동안 시작합니다...')
+        
+    def calibration(self, second=0.5):
+        """지정된 시간 동안의 평균값을 새로운 영점(offset)으로 설정합니다."""
+        print(f"  > {second}초 동안 영점 조절...")
         start_time = time()
         count = 0
-        stacked_offset = np.asarray([.0,.0,.0,.0,.0,.0])
-
+        stacked_offset = np.zeros(6)
         while time() - start_time < second:
             stacked_offset += self.readFT()
             count += 1
-        
         if count > 0:
-            self.offset = stacked_offset / count
+            self.current_offset = stacked_offset / count
         else:
-            print(" 경고: 캘리브레이션 중 데이터를 읽지 못했습니다.")
-            self.offset = np.zeros(6)
-
-        print(f'캘리브레이션 완료. Offset: {self.offset}')
-        return self.offset
-    
+            print("경고: 영점 조절 중 데이터를 읽지 못했습니다.")
+            self.current_offset = np.zeros(6)
+        
     def readFT_calibrated(self):
-        if self.offset.sum() == 0:
-            print("경고: 캘리브레이션이 수행되지 않았습니다. 원본 값을 반환합니다.")
-        return self.readFT() - self.offset
-    
+        """현재 영점을 기준으로 보정된 값을 읽습니다."""
+        return self.readFT() - self.current_offset
+
     def close(self):
         self.task.close()
         print("FT Sensor task closed.")
