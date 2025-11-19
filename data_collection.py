@@ -13,7 +13,7 @@ import keyboard
 # ============================== 설정값 ===============================
 CONFIG = {
         # 고정 회전 각도
-        "radi" : 334.80,
+        "radi" : 350.90,
 
         # 카메라 인덱스
         "camera_index": 0,
@@ -23,9 +23,6 @@ CONFIG = {
 
         # 로봇의 안전높이 (눌림의 위치보다 얼마나 위로 이동할지, 단위: mm)
         "safe_height_offset": 20.0,
-
-        # point_from_stl.py에서 생성된 CSV 파일 이름
-        "csv_filename": "robot_press_points.csv",
 
         # 로봇의 ip 주소
         "robot_ip": "192.168.1.6",
