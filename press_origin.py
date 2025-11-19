@@ -42,3 +42,29 @@ try:
 except ImportError:
     print("오류: Dobot API 모듈을 찾을 수 없습니다. 경로 설정을 확인하세요.")
     sys.exit(1)
+
+class FT_NI:
+    def __init__(self,**kwargs):
+        self.Nsamples = kwargs['samples']
+        self.Ratesamples = kwargs['rate']
+        self.task=None 
+        self.current_offset = np.asarray([.0,.0,.0,.0,.0,.0])
+        try: 
+            import nidaqmx
+            from nidaqmx.constants import AcquisitionType, Edge
+            self.task=nidaqmx.Task() 
+            self.FTsetup()
+            print("FT Sensor Initialized.")
+        except ImportError: 
+             print("경고: nidaqmx 라이브러리를 찾을 수 없습니다. pip install nidaqmx")
+             print("FT 센서 없이 진행합니다 (영점 조절 불가).")
+             self.task = None
+        except ConnectionError as e:
+            print(f"초기화 실패: {e}")
+            print("FT 센서 없이 진행합니다 (영점 조절 불가).")
+            if self.task:
+                 try:
+                      self.task.close()
+                 except: 
+                      pass
+            self.task = None 
