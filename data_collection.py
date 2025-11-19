@@ -286,6 +286,7 @@ if __name__ == "__main__":
             print(f"  > 안전 위치로 이동: X={target_safe[0]:.2f}, Y={target_safe[1]:.2f}, Z={target_safe[2]:.2f}")
             move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
             WaitArrive(target_safe)
+            FT.calibration()
 
             # Z축을 내려서 목표 지점 누르기
             target_press = [x, y, z, CONFIG["radi"]]
