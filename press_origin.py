@@ -147,7 +147,6 @@ class FT_NI:
             self.task.close()
             print("FT Sensor task closed.")
         except nidaqmx.errors.DaqError as e:
-            # 닫기 오류는 경고만 출력하고 계속 진행
             print(f"경고: FT 센서 닫기 오류 (무시): {e}")
 
 current_actual = None
@@ -235,4 +234,42 @@ def GetFeed(feed: DobotApi):
             with globalLockValue: current_actual=None; enableStatus_robot=None; robotErrorState=True
             sleep(1)
 
-    print("피드백 스레드 종료.") # 스레드 종료 시 메시지 출력
+    print("피드백 스레드 종료.")
+
+def WaitArrive(target_point):
+    global current_actual, robotErrorState
+    start_wait_time = time()
+    max_wait_time = 30
+    last_pos_print_time = time()
+    print(f"  > 목표 지점 {np.round(target_point[:3], 1)} 도착 대기 시작...")
+    while True:
+        current_time = time()
+        if current_time - start_wait_time > max_wait_time:
+             print(f"경고: 목표 {np.round(target_point[:3], 1)} 도착 대기 시간 초과!")
+             return False
+
+        with globalLockValue:
+            if robotErrorState:
+                 error_id = -1 
+                 print(f"오류: 로봇 오류 상태 감지됨 (ID: {error_id}). 이동 중단.")
+                 return False
+
+            current_pos_local = current_actual
+
+        if current_pos_local is None:
+            is_arrive = False
+        else:
+            current_pos = current_pos_local[:3]
+            target_pos = target_point[:3]
+            diff = np.abs(current_pos - target_pos)
+            is_arrive = np.all(diff <= 1.5)
+
+            if current_time - last_pos_print_time > 1.0:
+                print(f"  > 현재: {np.round(current_pos, 1)}, 목표: {np.round(target_pos, 1)}, 오차: {np.round(diff, 1)}")
+                last_pos_print_time = current_time
+
+            if is_arrive:
+                print(f"도착 확인: {np.round(current_pos, 1)}")
+                return True
+
+        sleep(0.1)
