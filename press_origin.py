@@ -82,3 +82,24 @@ class FT_NI:
                 except: pass
             self.task = None
             raise ConnectionError(f"FT 센서 설정 실패: {e}")
+        
+    def convertingRawData(self):
+        if self.task is None: return np.zeros(6)
+        # For FT52560 - 필요시 센서 모델에 맞게 수정
+        bias = [0.1663, 1.5724, -0.0462, -0.0193, -0.0029, 0.0093]
+        userAxis = [[-1.46365, 0.26208, 1.93786, -34.19271, -1.16799, 32.94542],
+                    [-1.30893, 39.73726, -0.37039, -19.60236, 1.84250, -19.16761],
+                    [19.26259, -0.08643, 19.17027, -0.25200, 19.58193, -0.01857],
+                    [0.46529, 0.12592, -33.14392, 0.31541, 33.76824, -0.14065],
+                    [37.74417, -0.26852, -18.62546, 0.43466, -19.49703, 0.01865],
+                    [1.16572, -19.72447, 0.49027, -19.51112, 0.54533, -19.30472]]
+        if self.rawData.ndim == 1:
+             offSetCorrection = self.rawData - np.array(bias)
+             self.forces = np.dot(userAxis, offSetCorrection)
+        elif self.rawData.shape[0] == 6:
+             offSetCorrection = self.rawData - np.array(bias)[:, np.newaxis]
+             self.forces = np.dot(userAxis, offSetCorrection).mean(axis=1)
+        else:
+             print(f"경고: rawData 형태({self.rawData.shape})가 예상과 다릅니다.")
+             self.forces = np.zeros(6)
+        return self.forces
