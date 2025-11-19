@@ -316,3 +316,31 @@ if __name__ == "__main__":
         except ConnectionError as e:
             print(e); print("경고: FT 센서 없이 진행합니다.")
             ft_sensor_available = False; FT = None
+
+        print("로봇 활성화 시도...")
+        ret_clear = dashboard.ClearError()
+        print(f"ClearError 결과: {ret_clear}")
+        sleep(0.5)
+        ret_enable = dashboard.EnableRobot()
+        print(f"EnableRobot 결과: {ret_enable}")
+
+        feed_thread = threading.Thread(target=GetFeed, args=(feed,), daemon=True)
+        feed_thread.start()
+        sleep(1.5)
+
+        enable_check_start = time()
+        is_enabled = False
+        while time() - enable_check_start < 15:
+             with globalLockValue:
+                  current_enable_status = enableStatus_robot
+                  current_error_state = robotErrorState
+             if current_error_state:
+                  raise RuntimeError("로봇 활성화 중 오류 상태 감지됨.")
+             if current_enable_status == 1:
+                  print("[INFO] 로봇 활성화 확인됨.")
+                  is_enabled = True
+                  break
+             sleep(0.5)
+
+        if not is_enabled:
+             raise TimeoutError("로봇 활성화 상태 확인 시간 초과")
