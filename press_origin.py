@@ -29,3 +29,16 @@ CONFIG = {
     "ft_time": 0.5 # 안정화 시간 단축
 }
 # =====================================================================
+
+try:
+    script_dir_abs = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    script_dir_abs = os.getcwd()
+sys.path.append(os.path.abspath(os.path.join(script_dir_abs, '..')))
+
+
+try:
+    from TCP_IP_4Axis_Python.dobot_api import DobotApiDashboard, DobotApi, DobotApiMove, MyType
+except ImportError:
+    print("오류: Dobot API 모듈을 찾을 수 없습니다. 경로 설정을 확인하세요.")
+    sys.exit(1)
