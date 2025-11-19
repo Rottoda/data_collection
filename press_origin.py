@@ -139,7 +139,7 @@ class FT_NI:
             print(f"  > 영점 조절 완료. Offset: {np.round(self.current_offset, 3)}")
         else:
             print("경고: 영점 조절 중 유효 데이터를 얻지 못했습니다. 이전 오프셋 유지.")
-            
+
     def close(self):
         if self.task is None: return
         try:
@@ -149,3 +149,22 @@ class FT_NI:
         except nidaqmx.errors.DaqError as e:
             # 닫기 오류는 경고만 출력하고 계속 진행
             print(f"경고: FT 센서 닫기 오류 (무시): {e}")
+
+current_actual = None
+algorithm_queue = None
+enableStatus_robot = None
+robotErrorState = False
+globalLockValue = threading.Lock()
+feed_thread_running = True # <<< 스레드 종료 플래그 추가
+
+def ConnectRobot(ip, dashboardPort=29999, movePort=30003, feedPort=30004):
+    print(f"Connecting to robot at {ip}...")
+    try:
+        dashboard = DobotApiDashboard(ip, dashboardPort)
+        move = DobotApiMove(ip, movePort)
+        feed = DobotApi(ip, feedPort)
+        print("Connection successful.")
+        return dashboard, move, feed
+    except Exception as e:
+        print(f"로봇 연결 실패: {e}")
+        return None, None, None
