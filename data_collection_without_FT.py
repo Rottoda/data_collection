@@ -9,19 +9,31 @@ from datetime import datetime
 
 # ============================== 설정값 ===============================
 CONFIG = {
-    "radi" : 350.90,
-    "camera_index": 0,
-    "robot_speed": 50,
-    "safe_height_offset": 20.0,
-    "robot_ip": "192.168.1.6",
-    "ft_samples": 100,
-    "ft_rate": 1000,
-    "ft_time": 1.0
+
+        # 고정 회전 각도
+        "radi" : 350.90,
+
+        # 카메라 인덱스
+        "camera_index": 0,
+
+        # 로봇 속도 (1~100)
+        "robot_speed": 50,
+
+        # 로봇의 안전높이 (눌림의 위치보다 얼마나 위로 이동할지, 단위: mm)
+        "safe_height_offset": 20.0,
+
+        # 로봇의 ip 주소
+        "robot_ip": "192.168.1.6",
+
+        # FT 센서 설정
+        "ft_samples": 100,
+        "ft_rate": 1000,
+        "ft_time": 1.0
 }
+
 # =====================================================================
 
 # --- 필요한 모듈 임포트 ---
-# nidaqmx가 설치되지 않았을 경우를 대비하여 try...except로 감쌈
 try:
     import nidaqmx
     from nidaqmx.constants import AcquisitionType, Edge
