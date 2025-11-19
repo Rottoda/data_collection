@@ -292,3 +292,11 @@ def calculate_origin_target(config):
     print(f"  > 누름 깊이: {press_depth:.2f} mm")
     print(f"  > 최종 로봇 목표 좌표 (X, Y, Z): {np.round(robot_target_point, 4)}")
     return robot_target_point
+
+if __name__ == "__main__":
+    print("[INFO] 오프셋 검증 모드 시작.")
+    dashboard, move, feed, FT = None, None, None, None
+    feed_thread = None
+    final_position_reached = False
+    go_back_to_safe = False
+    target_safe = []
