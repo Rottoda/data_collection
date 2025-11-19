@@ -103,3 +103,18 @@ class FT_NI:
              print(f"경고: rawData 형태({self.rawData.shape})가 예상과 다릅니다.")
              self.forces = np.zeros(6)
         return self.forces
+    
+    def readFT(self):
+        if self.task is None: return np.zeros(6)
+        try:
+            voltages = np.array(self.task.read(number_of_samples_per_channel=self.Nsamples))
+            if voltages.ndim < 2 or voltages.shape[1] == 0: # 형태 및 샘플 수 확인
+                 print("경고: FT 센서에서 유효한 샘플을 읽지 못했습니다.")
+                 self.rawData = np.zeros(6)
+            else:
+                 self.rawData = np.mean(voltages, axis=1)
+            return self.convertingRawData()
+        except nidaqmx.errors.DaqReadError as e:
+            print(f"FT 센서 읽기 오류: {e}")
+            # 오류 시 현재 오프셋 반환보다는 0이나 예외 발생이 나을 수 있음
+            return np.zeros(6) # 0 벡터 반환
