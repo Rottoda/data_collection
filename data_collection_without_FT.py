@@ -199,7 +199,11 @@ if __name__ == "__main__":
                 print("  > FT 센서 없음: Force 데이터를 NaN으로 기록합니다.")
             
             
-            original_row = df.iloc[i].to_dict(); original_row['Fx'] = ft_data[0]; original_row['Fy'] = ft_data[1]; original_row['Fz'] = ft_data[2]; all_data.append(original_row)
+            original_row = df.iloc[i].to_dict()
+            original_row['Fx'] = ft_data[0]
+            original_row['Fy'] = ft_data[1]
+            original_row['Fz'] = ft_data[2]
+            all_data.append(original_row)
             
             print("  > 안전 위치로 복귀 중..."); move.MovL(*target_safe, user, tool, speed); WaitArrive(target_safe)
 
