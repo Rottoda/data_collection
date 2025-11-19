@@ -395,3 +395,53 @@ if __name__ == "__main__":
         traceback.print_exc()
         go_back_to_safe = False
         print("프로그램을 종료합니다.")
+
+
+    finally:
+        print("\n[INFO] 종료 처리 시작...")
+        feed_thread_running = False
+
+        if go_back_to_safe and target_safe and move:
+             try:
+                 needs_return = True
+                 with globalLockValue:
+                      if current_actual is not None:
+                           if np.allclose(current_actual[:3], target_safe[:3], atol=2.0):
+                                needs_return = False
+                 if needs_return:
+                      print(f"  > 안전 위치({np.round(target_safe[:3], 1)})로 최종 복귀 시도...")
+                      safe_speed = max(10, CONFIG["robot_speed"] // 2)
+                      move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, safe_speed)
+                      sleep(3)
+                      print("  > 복귀 시도 완료.")
+             except Exception as e:
+                  print(f"  > 안전 위치 복귀 중 오류 발생 (무시): {e}")
+
+        if dashboard:
+            try:
+                print("  > 로봇 비활성화 시도...")
+                dashboard.DisableRobot()
+                print("  > 로봇 비활성화 완료.")
+            except Exception as e:
+                print(f"  > 로봇 비활성화 중 오류: {e}")
+
+        if FT: FT.close()
+
+        if feed_thread and feed_thread.is_alive():
+            print("  > 피드백 스레드 종료 대기...")
+            feed_thread.join(timeout=2.0)
+            if feed_thread.is_alive():
+                print("  > 피드백 스레드가 시간 내에 종료되지 않았습니다.")
+
+        if feed and feed.socket_dobot:
+             try: feed.socket_dobot.close(); print("  > 피드 소켓 닫힘.")
+             except: pass
+        if move and move.socket_dobot:
+             try: move.socket_dobot.close(); print("  > 이동 소켓 닫힘.")
+             except: pass
+        if dashboard and dashboard.socket_dobot:
+             try: dashboard.socket_dobot.close(); print("  > 대시보드 소켓 닫힘.")
+             except: pass
+
+
+        print("[INFO] 프로그램 종료.")
