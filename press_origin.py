@@ -273,3 +273,22 @@ def WaitArrive(target_point):
                 return True
 
         sleep(0.1)
+
+def calculate_origin_target(config):
+    stl_path = config['stl_file_path']
+    robot_offset = config['robot_origin_offset']
+    press_depth = config['press_depth_at_origin_mm']
+
+    print(f"\n[INFO] STL 원점 목표 좌표 계산 시작...")
+    if not os.path.exists(stl_path):
+        raise FileNotFoundError(f"오류: STL 파일 '{stl_path}'를 찾을 수 없습니다.")
+
+    stl_origin_local = np.array([0.0, 0.0, 0.0])
+    robot_origin_base = stl_origin_local + robot_offset
+    robot_target_z = robot_origin_base[2] - press_depth
+    robot_target_point = np.array([robot_origin_base[0], robot_origin_base[1], robot_target_z])
+
+    print(f"  > STL 원점 로봇 좌표 (오프셋 적용): {np.round(robot_origin_base, 3)}")
+    print(f"  > 누름 깊이: {press_depth:.2f} mm")
+    print(f"  > 최종 로봇 목표 좌표 (X, Y, Z): {np.round(robot_target_point, 4)}")
+    return robot_target_point
