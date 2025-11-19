@@ -44,7 +44,7 @@ class FT_NI:
             self.task.ai_channels.add_ai_voltage_chan("Dev1/ai0:5")
             self.task.timing.cfg_samp_clk_timing(self.Ratesamples, source="", active_edge=Edge.RISING, sample_mode=AcquisitionType.FINITE, samps_per_chan=11)
         except nidaqmx.errors.DaqError as e:
-            print(f"❌ ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
+            print(f"ERROR: FT 센서 설정 실패. NI-DAQmx 장치가 연결되었는지 확인하세요. ({e})")
             sys.exit()
 
     def convertingRawData(self):
@@ -73,7 +73,7 @@ class FT_NI:
             stacked_offset += self.readFT()
             count += 1
         if count > 0: self.offset = stacked_offset / count
-        else: print("⚠️ 경고: 캘리브레이션 중 데이터를 읽지 못했습니다."); self.offset = np.zeros(6)
+        else: print("경고: 캘리브레이션 중 데이터를 읽지 못했습니다."); self.offset = np.zeros(6)
         print(f'캘리브레이션 완료. Offset: {np.round(self.offset, 3)}')
         return self.offset
 
@@ -98,7 +98,7 @@ def ConnectRobot():
         print("Connection successful.")
         return dashboard, move, feed
     except Exception as e:
-        print(f"❌ ERROR: 로봇 연결에 실패했습니다. ({e})"); sys.exit()
+        print(f"ERROR: 로봇 연결에 실패했습니다. ({e})"); sys.exit()
 
 def GetFeed(feed: DobotApi):
     global current_actual
