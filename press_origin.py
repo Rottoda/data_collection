@@ -68,3 +68,17 @@ class FT_NI:
                  except: 
                       pass
             self.task = None 
+
+    def FTsetup(self):
+        if self.task is None: return # 초기화 실패 시 설정 건너뜀
+        try:
+            self.task.ai_channels.add_ai_voltage_chan("Dev1/ai0:5")
+            self.task.timing.cfg_samp_clk_timing(self.Ratesamples, source="", active_edge=Edge.RISING, sample_mode=AcquisitionType.FINITE, samps_per_chan=self.Nsamples)
+        except nidaqmx.errors.DaqError as e:
+            # 설정 실패 시 task 닫기
+            if self.task:
+                try:
+                    self.task.close()
+                except: pass
+            self.task = None
+            raise ConnectionError(f"FT 센서 설정 실패: {e}")
