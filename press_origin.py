@@ -344,3 +344,54 @@ if __name__ == "__main__":
 
         if not is_enabled:
              raise TimeoutError("로봇 활성화 상태 확인 시간 초과")
+        
+        user, tool, speed = 1, 1, CONFIG["robot_speed"]
+
+        target_safe_z = target_press[2] + CONFIG["safe_height_offset"]
+        target_safe = [target_press[0], target_press[1], target_safe_z, target_press[3]]
+
+        print("\n[INFO] 로봇 이동 시작...")
+
+        print(f"  > 초기 안전 위치로 이동: {np.round(target_safe[:3], 1)}")
+        ret_move_safe1 = move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+        print(f"MovL(safe) 결과: {ret_move_safe1}")
+        if not WaitArrive(target_safe): raise TimeoutError("안전 위치 도착 시간 초과")
+
+        if ft_sensor_available and FT:
+             FT.calibration(second=CONFIG["ft_time"])
+
+        print(f"  > 목표 지점({np.round(target_press[:3], 1)})으로 이동...")
+        ret_move_press = move.MovL(target_press[0], target_press[1], target_press[2], target_press[3], user, tool, speed)
+        print(f"MovL(press) 결과: {ret_move_press}")
+        if not WaitArrive(target_press): raise TimeoutError("목표 지점 도착 시간 초과")
+        final_position_reached = True
+        print("\n[INFO] 목표 지점에 도착했습니다. 로봇 위치를 확인하고 오프셋을 조정하세요.")
+        print("       조정 후 Enter 키를 누르면 로봇이 안전 위치로 복귀하고 종료합니다...")
+
+        input("       Enter 키를 누르세요...")
+        go_back_to_safe = True 
+
+        print(f"  > 안전 위치({np.round(target_safe[:3], 1)})로 복귀 중...")
+        ret_move_safe2 = move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+        print(f"MovL(safe_return) 결과: {ret_move_safe2}") 
+        if not WaitArrive(target_safe): print("경고: 안전 위치 복귀 확인 시간 초과 (종료 진행).") 
+        print("  > 안전 위치 복귀 완료.")
+
+    except KeyboardInterrupt:
+        print("\n[STOP] 사용자에 의해 중단됨.")
+        with globalLockValue:
+            if final_position_reached and current_actual is not None:
+                go_back_to_safe = True
+    except TimeoutError as te:
+         print(f"오류: {te}")
+         go_back_to_safe = False 
+         print("프로그램을 종료합니다.")
+    except (RuntimeError, ConnectionError) as ce: 
+         print(f"오류: {ce}")
+         go_back_to_safe = False
+         print("프로그램을 종료합니다.")
+    except Exception as e:
+        print(f"로봇 이동 또는 작업 중 오류 발생: {e}")
+        traceback.print_exc()
+        go_back_to_safe = False
+        print("프로그램을 종료합니다.")
