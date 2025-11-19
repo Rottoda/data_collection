@@ -293,7 +293,7 @@ if __name__ == "__main__":
             print(f"  > 목표 지점 누르기: X={target_press[0]:.2f}, Y={target_press[1]:.2f}, Z={target_press[2]:.2f}")
             move.MovL(target_press[0], target_press[1], target_press[2], target_press[3], user, tool, speed)
             WaitArrive(target_press)
-            sleep(0.5) # 누른 후 안정화를 위해 잠시 대기
+            sleep(CONFIG["ft_time"]) # 누른 후 안정화를 위해 잠시 대기
 
             # 이미지 촬영
             CaptureImg(cap, origin_dir, bin_dir, i)
