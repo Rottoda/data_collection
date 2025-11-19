@@ -224,16 +224,23 @@ if __name__ == "__main__":
     print(f"[INFO] 이미지 저장 디렉토리: {session_dir}")
 
     # --- 2. STL 기반 좌표 데이터 로드 ---
-    # 좌표 생성 스크립트에서 만든 CSV 파일 경로
-    csv_path = os.path.join(script_dir, CONFIG['csv_filename'])
     try:
+        data_gen_dir = os.path.join(script_dir, "generated_points")
+        if not os.path.isdir(data_gen_dir): raise FileNotFoundError(f"'{data_gen_dir}' 폴더를 찾을 수 없습니다.")
+        
+        all_sessions = [d for d in os.listdir(data_gen_dir) if os.path.isdir(os.path.join(data_gen_dir, d)) and d.startswith("session_")]
+        if not all_sessions: raise FileNotFoundError(f"'{data_gen_dir}' 폴더 안에 세션 폴더가 없습니다.")
+
+        latest_session_dir = sorted(all_sessions)[-1]
+        print(f"[INFO] 가장 최신 좌표 데이터 세션 로드: {latest_session_dir}")
+
+        csv_path = os.path.join(data_gen_dir, latest_session_dir, "generated_points.csv")
         df = pd.read_csv(csv_path)
-        # 로봇이 이동할 절대 좌표만 추출
         absolute_points = df[['x', 'y', 'z']].values
-        print(f"[INFO] '{csv_path}'에서 {len(absolute_points)}개의 좌표를 로드했습니다.")
-    except FileNotFoundError:
-        print(f" ERROR: CSV 파일을 찾을 수 없습니다. 경로: '{csv_path}'")
-        print("좌표 생성 스크립트를 먼저 실행해주세요.")
+        print(f"[INFO] '{os.path.basename(csv_path)}'에서 {len(absolute_points)}개의 좌표를 로드했습니다.")
+    except (FileNotFoundError, KeyError) as e:
+        print(f"ERROR: 좌표 데이터를 로드할 수 없습니다. ({e})")
+        print("좌표 생성 스크립트(generate_points_from.py)의 최신 버전을 먼저 실행해주세요.")
         sys.exit()
 
     # --- 3. 하드웨어 연결 (카메라 및 로봇) ---
