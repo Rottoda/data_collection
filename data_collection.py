@@ -276,7 +276,8 @@ if __name__ == "__main__":
                 initial_target = [center_x, center_y, safe_center_z, CONFIG["radi"]]
                 move.MovL(initial_target[0], initial_target[1], initial_target[2], initial_target[3], user, tool, speed)
                 WaitArrive(initial_target)
-                FT.calibration(CONFIG['ft_time'])  # FT 센서 캘리브레이션
+                sleep(CONFIG["ft_time"])  # 안정화 대기
+                FT.calibration()  # FT 센서 캘리브레이션
 
             print(f"--- [{i+1}/{len(absolute_points)}] 번째 포인트 처리 중 ---")
             
