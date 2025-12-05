@@ -1,1 +1,2 @@
 # TacTip CNN
+This repository corresponds to the data collection phase of a project that spans from data acquisition to CNN model training, aimed at enabling position and force estimation for TacTip, a type of Vision-Based Tactile Sensor (VBTS).
