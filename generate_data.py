@@ -42,12 +42,10 @@ def visualize_results(mesh, absolute_points, origin_offset, save_path):
 
     ax.add_collection3d(plt.tripcolor(
         mesh_vertices_local[:, 0], mesh_vertices_local[:, 1], mesh_vertices_local[:, 2],
-        triangles=mesh.faces, facecolor='cyan', alpha=0.1, edgecolor='gray', linewidth=0.1
-    ))
+        triangles=mesh.faces, facecolor='cyan', alpha=0.1, edgecolor='gray', linewidth=0.1))
     ax.scatter(
         absolute_points_local[:, 0], absolute_points_local[:, 1], absolute_points_local[:, 2],
-        c='blue', s=10, label=f'Generated Press Points ({len(absolute_points)} points)'
-    )
+        c='blue', s=10, label=f'Generated Press Points ({len(absolute_points)} points)')
     ax.scatter(0, 0, 0, c='red', s=150, marker='x', label='STL Origin')
     ax.set_xlabel("X (mm)", fontsize=24); ax.set_ylabel("Y (mm)", fontsize=24); ax.set_zlabel("Z (mm)", fontsize=24)
     ax.set_title(f"Generated Points on {CONFIG['xy_sampling_scale']*100}% Scaled STL Model", fontsize=36)
