@@ -181,6 +181,8 @@ def main():
             
             robot_z_scaled = z_surface_highest - actual_robot_travel_depth
 
+            if is_A_valid:
+
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
             visual_press_points_A_list.append(vis_A)
