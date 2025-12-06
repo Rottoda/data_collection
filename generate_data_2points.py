@@ -211,17 +211,6 @@ def main():
             robot_x_scaled = surface_midpoint[0] # 로봇은 여전히 중심점으로 이동
             robot_y_scaled = surface_midpoint[1]
             
-            valid_z_values = []
-            if is_A_valid: valid_z_values.append(z_surf_A)
-            if is_B_valid: valid_z_values.append(z_surf_B)
-            
-            if not valid_z_values: # 둘 다 허공이면
-                z_surface_highest = surface_midpoint[2] # 그냥 중심점 Z 사용 (어차피 눌리지 않음)
-            else:
-                z_surface_highest = max(valid_z_values) # 유효한 점 중 높은 Z
-            
-            robot_z_scaled = z_surface_highest - depth
-            
             press_point_scaled = np.array([robot_x_scaled, robot_y_scaled, robot_z_scaled])
             robot_target_points_list.append(press_point_scaled + CONFIG['robot_origin_offset'])
 
