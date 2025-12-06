@@ -191,6 +191,8 @@ def main():
             else:
                 rel_A = [np.nan, np.nan, np.nan]
                 vis_A = np.array([np.nan, np.nan, np.nan])
+                
+            if is_B_valid:
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
