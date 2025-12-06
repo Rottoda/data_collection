@@ -124,3 +124,14 @@ def main():
         # Ray Casting을 위한 메쉬 바운딩 박스 정보 미리 계산
         min_bound, max_bound = mesh_scaled.bounds
         ray_start_z = max_bound[2] + 5 # 메쉬 최고점보다 5mm 위에서 레이 시작
+
+        # --- 3. 가우시안 분포를 이용한 중심점 생성 ---
+        center = mesh_scaled.centroid
+        extents = mesh_scaled.extents
+        std_dev_x = extents[0] * CONFIG['central_focus_strength']
+        std_dev_y = extents[1] * CONFIG['central_focus_strength']
+        rand_x_mid = np.random.normal(loc=center[0], scale=std_dev_x, size=CONFIG['n_points'])
+        rand_y_mid = np.random.normal(loc=center[1], scale=std_dev_y, size=CONFIG['n_points'])
+        query_midpoints = np.vstack([rand_x_mid, rand_y_mid, np.full(CONFIG['n_points'], center[2])]).T
+        surface_midpoints, _, _ = mesh_scaled.nearest.on_surface(query_midpoints)
+        print(f"{len(surface_midpoints)}개의 중심점 좌표 생성 완료.")
