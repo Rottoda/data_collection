@@ -191,8 +191,11 @@ def main():
             else:
                 rel_A = [np.nan, np.nan, np.nan]
                 vis_A = np.array([np.nan, np.nan, np.nan])
-                
+
             if is_B_valid:
+                potential_depth_B = z_surf_B - robot_z_scaled
+                max_possible_depth_B = z_surf_B - Z_BASE - CONFIG["bottom_safety_margin_mm"]
+                actual_depth_B = np.maximum(0, np.minimum(potential_depth_B, max_possible_depth_B))
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
