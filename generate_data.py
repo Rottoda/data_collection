@@ -104,7 +104,6 @@ def main():
         surface_points_scaled, _, _ = mesh_scaled.nearest.on_surface(query_points)
         print(f"{len(surface_points_scaled)}개의 중앙 집중형 표면 좌표 생성 완료.")
 
-
         # --- 4. 로봇이 누를 '절대 좌표' 및 학습용 '상대 좌표' 계산 ---
         robot_target_points = []
         relative_points = []
@@ -118,12 +117,7 @@ def main():
         robot_target_points = np.array(robot_target_points)
         print("절대/상대 좌표 계산 완료.")
 
-        # --- 5. 수동 Z축 보정 적용 ---
-        if CONFIG['manual_z_correction'] != 0.0:
-            robot_target_points[:, 2] += CONFIG['manual_z_correction']
-            print(f"수동 Z축 보정 적용: {CONFIG['manual_z_correction']}mm")
-
-        # --- 6. CSV 파일로 저장 ---
+        # --- 5. CSV 파일로 저장 ---
         df_robot = pd.DataFrame(robot_target_points, columns=["x", "y", "z"])
         df_relative = pd.DataFrame(relative_points, columns=["dX", "dY", "dZ"])
         final_df = pd.concat([df_robot, df_relative], axis=1)
