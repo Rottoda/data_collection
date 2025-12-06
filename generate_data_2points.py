@@ -98,3 +98,4 @@ def get_surface_z_at_xy(mesh, xy_point, default_z, z_offset=5):
         return locations[0][2] 
     else:
         return np.nan 
+
