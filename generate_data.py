@@ -139,7 +139,7 @@ def main():
         final_df.to_csv(output_csv_path, index=False)
         print(f"CSV 저장 완료: {output_csv_path}")
 
-        # --- 7. 3D 시각화 ---
+        # --- 6. 3D 시각화 ---
         output_graph_path = os.path.join(session_dir, "points_distribution.png")
         visualize_results(mesh_scaled, robot_target_points[:, :3], CONFIG['robot_origin_offset'], output_graph_path)
 
