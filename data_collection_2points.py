@@ -123,6 +123,7 @@ enableStatus_robot = None
 robotErrorState = False
 globalLockValue = threading.Lock()
 
+# 로봇 연결 함수 (원본과 동일)
 def ConnectRobot():
     """로봇의 IP와 포트에 연결하고 API 인스턴스를 반환합니다."""
     ip = CONFIG['robot_ip']
@@ -136,6 +137,7 @@ def ConnectRobot():
     print("Connection successful.")
     return dashboard, move, feed
 
+# 로봇 피드백 수신 쓰레드 (원본과 동일)
 def GetFeed(feed: DobotApi):
     """로봇의 현재 상태를 실시간으로 수신하는 쓰레드 함수"""
     global current_actual, algorithm_queue, enableStatus_robot, robotErrorState
@@ -157,6 +159,7 @@ def GetFeed(feed: DobotApi):
                 robotErrorState = feedInfo['ErrorStatus'][0]
         sleep(0.001)
 
+# 목표 지점 도착 대기 함수 (원본과 동일)
 def WaitArrive(target_point):
     """로봇이 목표 지점에 도착할 때까지 대기합니다."""
     global current_actual
@@ -172,22 +175,26 @@ def WaitArrive(target_point):
                     return
         sleep(0.001)
 
+# 이미지 촬영 및 저장 함수 (원본과 동일)
 def CaptureImg(cap, origin_dir, bin_dir, index):
     """
     버퍼를 비우고, 최신 프레임을 안정적으로 캡처하여 저장하는 함수
     """
-    
+    # 1. 버퍼 비우기 (목적: 과거 프레임 제거)
+    # break 없이 정해진 횟수만큼 무조건 실행하여 낡은 프레임을 버립니다.
     for _ in range(5): 
         cap.read()
 
-
+    # 2. 가장 최신 프레임 캡처 (목적: 현재 순간 포착 및 실패 시 재시도)
+    # 버퍼가 비워진 후 들어온 가장 새로운 프레임을 읽습니다.
     ret, frame = False, None
-    for _ in range(3): 
+    for _ in range(3): # 최대 3번 시도
         ret, frame = cap.read()
         if ret:
-            break 
-        sleep(0.1) 
+            break # 성공하면 루프 탈출
+        sleep(0.1) # 실패 시 잠시 대기
 
+    # 3. 이미지 처리 및 저장
     if ret:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         binarized = cv2.adaptiveThreshold(
