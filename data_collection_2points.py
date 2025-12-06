@@ -255,3 +255,15 @@ if __name__ == "__main__":
     print("[INFO] 로봇 활성화 완료.")
 
     threading.Thread(target=GetFeed, args=(feed,), daemon=True).start()
+
+    
+    all_data = []  
+    try:
+        user, tool, speed = 1, 1, CONFIG["robot_speed"]
+
+        print("\n[INFO] 데이터 수집을 시작합니다...")
+        for i, point in enumerate(absolute_points):
+            x, y, z = point
+            
+            center_x, center_y = absolute_points[:, 0].mean(), absolute_points[:, 1].mean()
+            safe_center_z = absolute_points[:, 2].max() + CONFIG["safe_height_offset"]
