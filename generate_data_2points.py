@@ -39,7 +39,7 @@ CONFIG = {
 # visualize_results 함수는 이전과 동일 (NaN 처리 기능 유지)
 def visualize_results(mesh, press_points_A_scaled, press_points_B_scaled, save_path):
     """
-    NaN 값을 처리하여 3D 그래프로 시각화하는 함수
+    [수정] NaN 값을 처리하여 3D 그래프로 시각화하는 함수
     """
     print("결과를 3D로 시각화합니다...")
     fig = plt.figure(figsize=(12, 10))
