@@ -169,17 +169,12 @@ def main():
             valid_z_values = []
             if is_A_valid: valid_z_values.append(z_surf_A)
             if is_B_valid: valid_z_values.append(z_surf_B)
-            
-            else:
-                rel_A = [np.nan, np.nan, np.nan]
-                vis_A = np.array([np.nan, np.nan, np.nan]) 
 
-            if is_B_valid:
-                rel_B = [target_x_B, target_y_B, -depth]
-                vis_B = np.array([target_x_B, target_y_B, z_surf_B - depth]) # 시각화용 실제 눌린 위치
             else:
-                rel_B = [np.nan, np.nan, np.nan]
-                vis_B = np.array([np.nan, np.nan, np.nan]) 
+            if not valid_z_values:
+                z_surface_highest = surface_midpoint[2]
+            else:
+                z_surface_highest = max(valid_z_values)
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
