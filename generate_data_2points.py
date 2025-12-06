@@ -166,9 +166,10 @@ def main():
             is_A_valid = not np.isnan(z_surf_A)
             is_B_valid = not np.isnan(z_surf_B)
 
-            if is_A_valid:
-                rel_A = [target_x_A, target_y_A, -depth]
-                vis_A = np.array([target_x_A, target_y_A, z_surf_A - depth]) # 시각화용 실제 눌린 위치
+            valid_z_values = []
+            if is_A_valid: valid_z_values.append(z_surf_A)
+            if is_B_valid: valid_z_values.append(z_surf_B)
+            
             else:
                 rel_A = [np.nan, np.nan, np.nan]
                 vis_A = np.array([np.nan, np.nan, np.nan]) 
