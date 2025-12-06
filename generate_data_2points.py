@@ -161,3 +161,6 @@ def main():
 
             z_surf_A = get_surface_z_at_xy(mesh_scaled, target_A_xy, ray_start_z)
             z_surf_B = get_surface_z_at_xy(mesh_scaled, target_B_xy, ray_start_z)
+
+            is_A_valid = not np.isnan(z_surf_A)
+            is_B_valid = not np.isnan(z_surf_B)
