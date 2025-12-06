@@ -113,6 +113,7 @@ def main():
 
         for surface_pt in surface_points_scaled:
             surface_z = surface_pt[2]
+            desired_depth = random.uniform(CONFIG['min_press_depth_mm'], CONFIG['max_press_depth_mm'])
 
         robot_target_points = np.array(robot_target_points)
         print("절대/상대 좌표 계산 완료.")
