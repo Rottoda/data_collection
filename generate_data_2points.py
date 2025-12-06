@@ -99,3 +99,17 @@ def get_surface_z_at_xy(mesh, xy_point, default_z, z_offset=5):
     else:
         return np.nan 
 
+def main():
+    """
+    Ray Casting을 사용하여 고정 거리 인덴터의 접촉점을 계산
+    """
+    try:
+        # --- 1. 세션 디렉토리 생성 ---
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            script_dir = os.getcwd()
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        session_dir = os.path.join(script_dir, "generated_points", f"session_{timestamp}")
+        os.makedirs(session_dir, exist_ok=True)
+        print(f"[INFO] 생성된 데이터 저장 경로: {session_dir}")
