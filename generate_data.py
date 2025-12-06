@@ -26,7 +26,7 @@ CONFIG = {
     "central_focus_strength": 0.15,
 
     # 누르는 깊이 범위 (mm)
-    "min_press_depth_mm": 4.0,
+    "min_press_depth_mm": 0.5,
     "max_press_depth_mm": 6.0 
 }
 # =================================================================
