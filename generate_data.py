@@ -29,6 +29,7 @@ CONFIG = {
 }
 # =================================================================
 
+
 def visualize_results(mesh, absolute_points, origin_offset, save_path):
     """생성된 결과를 3D 그래프로 시각화하는 함수"""
     print("결과를 3D로 시각화합니다...")
