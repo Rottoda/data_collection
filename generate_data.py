@@ -106,7 +106,7 @@ def main():
         # 생성된 (X,Y) 점에서 가장 가까운 표면의 (X,Y,Z)를 찾음
         surface_points_scaled, _, _ = mesh_scaled.nearest.on_surface(query_points)
         print(f"{len(surface_points_scaled)}개의 중앙 집중형 표면 좌표 생성 완료.")
-
+        
         # --- 4. 로봇이 누를 '절대 좌표' 및 학습용 '상대 좌표' 계산 ---
         robot_target_points = []
         relative_points = []
