@@ -267,3 +267,60 @@ if __name__ == "__main__":
             
             center_x, center_y = absolute_points[:, 0].mean(), absolute_points[:, 1].mean()
             safe_center_z = absolute_points[:, 2].max() + CONFIG["safe_height_offset"]
+            
+            if i == 0:
+                initial_target = [center_x, center_y, safe_center_z, CONFIG["radi"]]
+                move.MovL(initial_target[0], initial_target[1], initial_target[2], initial_target[3], user, tool, speed)
+                WaitArrive(initial_target)
+                sleep(CONFIG["ft_time"])
+                FT.calibration() 
+
+            print(f"--- [{i+1}/{len(absolute_points)}] 번째 포인트 처리 중 ---")
+            
+            target_safe = [x, y, z + CONFIG["safe_height_offset"], CONFIG["radi"]]
+            print(f"  > 안전 위치로 이동: X={target_safe[0]:.2f}, Y={target_safe[1]:.2f}, Z={target_safe[2]:.2f}")
+            move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+            WaitArrive(target_safe)
+            FT.calibration()
+
+            target_press = [x, y, z, CONFIG["radi"]]
+            print(f"  > 목표 지점 누르기: X={target_press[0]:.2f}, Y={target_press[1]:.2f}, Z={target_press[2]:.2f}")
+            move.MovL(target_press[0], target_press[1], target_press[2], target_press[3], user, tool, speed)
+            WaitArrive(target_press)
+            sleep(CONFIG["ft_time"])
+
+            CaptureImg(cap, origin_dir, bin_dir, i)
+
+            ft_data = FT.readFT_calibrated()
+            print(f"  > FT 데이터 측정: [Fx, Fy, Fz] = [{ft_data[0]:.3f}, {ft_data[1]:.3f}, {ft_data[2]:.3f}]")
+
+            original_row = df.iloc[i].to_dict()
+            original_row['Fx'] = ft_data[0]
+            original_row['Fy'] = ft_data[1]
+            original_row['Fz'] = ft_data[2]
+            all_data.append(original_row)
+
+            print(f"  > 안전 위치로 복귀 중...")
+            move.MovL(target_safe[0], target_safe[1], target_safe[2], target_safe[3], user, tool, speed)
+            WaitArrive(target_safe)
+
+        print("\n[SUCCESS] 모든 포인트에 대한 데이터 수집을 완료했습니다.")
+
+    except KeyboardInterrupt:
+        print("\n[STOP] 사용자에 의해 프로그램이 중단되었습니다.")
+    finally:
+        print("[INFO] 로봇 및 센서를 종료합니다.")
+        if all_data:
+            final_df = pd.DataFrame(all_data)
+            output_path = os.path.join(session_dir, "full_data.csv")
+            final_df.to_csv(output_path, index=False)
+            print(f"  > 최종 통합 데이터 저장 완료: {output_path}")
+
+        dashboard.DisableRobot()
+        print("  > 로봇 비활성화 완료.")
+        FT.close()
+        WaitArrive(target_safe)
+        if cap.isOpened():
+            cap.release()
+        cv2.destroyAllWindows()
+        print("  > 프로그램 종료.")
