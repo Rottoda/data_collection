@@ -188,6 +188,9 @@ def main():
                 
                 rel_A = [target_x_A, target_y_A, -actual_depth_A]
                 vis_A = np.array([target_x_A, target_y_A, z_surf_A - actual_depth_A])
+            else:
+                rel_A = [np.nan, np.nan, np.nan]
+                vis_A = np.array([np.nan, np.nan, np.nan])
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
