@@ -75,3 +75,26 @@ def visualize_results(mesh, press_points_A_scaled, press_points_B_scaled, save_p
     plt.savefig(save_path)
     print(f"그래프 이미지 저장 완료: {save_path}")
     plt.show()
+
+# Ray Casting을 사용하여 특정 XY 좌표 아래의 표면 Z값을 찾는 함수
+def get_surface_z_at_xy(mesh, xy_point, default_z, z_offset=5):
+    """
+    주어진 XY 좌표 바로 아래의 메쉬 표면 Z값을 Ray Casting으로 찾습니다.
+    mesh: trimesh 객체
+    xy_point: [x, y] numpy 배열
+    default_z: 광선 시작점 계산을 위한 기본 Z 높이 (예: mesh.centroid[2])
+    z_offset: 광선 시작점을 default_z보다 얼마나 위에서 시작할지 (충돌 방지)
+    반환값: 표면 Z값 (못 찾으면 np.nan)
+    """
+    ray_origin = np.array([xy_point[0], xy_point[1], default_z + z_offset])
+    ray_direction = np.array([0, 0, -1])
+    
+    locations, index_ray, index_tri = mesh.ray.intersects_location(
+        ray_origins=[ray_origin], 
+        ray_directions=[ray_direction]
+    )
+    
+    if len(locations) > 0:
+        return locations[0][2] # 첫 번째 충돌 지점의 Z 좌표
+    else:
+        return np.nan # 메쉬와 충돌하지 않음 (허공)
