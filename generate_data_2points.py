@@ -200,3 +200,34 @@ def main():
             
             press_point_scaled = np.array([robot_x_scaled, robot_y_scaled, robot_z_scaled])
             robot_target_points_list.append(press_point_scaled + CONFIG['robot_origin_offset'])
+
+        robot_target_points = np.array(robot_target_points_list)
+        relative_points_A = np.array(relative_points_A_list)
+        relative_points_B = np.array(relative_points_B_list)
+        df_robot = pd.DataFrame(robot_target_points, columns=["x", "y", "z"])
+        df_rel_A = pd.DataFrame(relative_points_A, columns=["rel_x1", "rel_y1", "rel_z1"])
+        df_rel_B = pd.DataFrame(relative_points_B, columns=["rel_x2", "rel_y2", "rel_z2"])
+        final_df = pd.concat([df_robot, df_rel_A, df_rel_B], axis=1)
+        output_csv_path = os.path.join(session_dir, "generated_points.csv")
+        final_df.to_csv(output_csv_path, index=False)
+        print(f"CSV 저장 완료: {output_csv_path}")
+        print("저장된 CSV 컬럼:")
+        print(final_df.columns.to_list())
+        nan_count_A = final_df['rel_x1'].isna().sum()
+        nan_count_B = final_df['rel_x2'].isna().sum()
+        print(f"[INFO] A 이탈(NaN) 개수: {nan_count_A} / {len(final_df)}")
+        print(f"[INFO] B 이탈(NaN) 개수: {nan_count_B} / {len(final_df)}")
+
+        
+        visual_press_points_A = np.array(visual_press_points_A_list)
+        visual_press_points_B = np.array(visual_press_points_B_list)
+        output_graph_path = os.path.join(session_dir, "points_distribution.png")
+        visualize_results(mesh_scaled, visual_press_points_A, visual_press_points_B, output_graph_path)
+
+    except Exception as e:
+        print(f"오류가 발생했습니다: {e}")
+        print(traceback.format_exc()) # 더 자세한 오류 출력
+        print("STL 파일 경로, 라이브러리 설치 상태를 확인해주세요.")
+
+if __name__ == '__main__':
+    main()
