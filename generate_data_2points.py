@@ -135,3 +135,14 @@ def main():
         query_midpoints = np.vstack([rand_x_mid, rand_y_mid, np.full(CONFIG['n_points'], center[2])]).T
         surface_midpoints, _, _ = mesh_scaled.nearest.on_surface(query_midpoints)
         print(f"{len(surface_midpoints)}개의 중심점 좌표 생성 완료.")
+
+        # --- 4. Ray Casting으로 2개의 접촉점 및 로봇 좌표 계산 ---
+        robot_target_points_list = []
+        relative_points_A_list = [] 
+        relative_points_B_list = [] 
+        visual_press_points_A_list = []
+        visual_press_points_B_list = []
+
+        angle_rad = np.deg2rad(CONFIG['fixed_indenter_angle_deg'])
+        distance = CONFIG['fixed_indenter_distance_mm']
+        half_dist = distance / 2.0
