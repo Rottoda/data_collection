@@ -12,23 +12,22 @@ CONFIG = {
     "stl_file_path": "tactip.stl",
     
     # 생성할 총 포인트 개수
-    "n_points": 100,
+    "n_points": 5000,
 
     # 로봇 좌표계 오프셋 (STL의 원점(x,y,z)에 해당하는 로봇의 실제 좌표)
-    "robot_origin_offset": np.array([339, 6, -112]),
+    # 구버전은 [339, 6, -112] 이었음
+    # 현재는 [340, 5, -109]로 변경됨
+    "robot_origin_offset": np.array([340, 5, -109]),
 
     # 샘플링할 모델의 축소 비율 (0.8 = 80%)
     "xy_sampling_scale": 0.8,
 
     # 중앙 집중 강도 - 값이 작을수록 중앙에 더 강하게 집중 (예: 0.1)
-    "central_focus_strength": 0.1,
-
-    # 수동 Z축 보정값 (mm)
-    "manual_z_correction": -5.0,
+    "central_focus_strength": 0.15,
 
     # 누르는 깊이 범위 (mm)
-    "min_press_depth_mm": 1.0, # 보정값과 9 이상 차이를 추천
-    "max_press_depth_mm": 5.0  # 보정값과 절대 11이상 벗어나지말 것
+    "min_press_depth_mm": 4.0,
+    "max_press_depth_mm": 6.0 
 }
 # =================================================================
 
