@@ -77,10 +77,15 @@ def main():
         # --- 2. STL 파일 로드 및 축소 모델 생성 ---
         print(f"'{CONFIG['stl_file_path']}' 파일을 로드합니다...")
         mesh_original = trimesh.load_mesh(CONFIG['stl_file_path'])
+
+        # Tactip의 '바닥' Z좌표를 찾습니다.
+        # 모델의 경계 상자(bounds)에서 가장 낮은 Z값 [0][2]를 가져옵니다.
+        Z_BASE = mesh_original.bounds[0][2] 
+        print(f"[INFO] 모델의 '바닥' Z 높이를 {Z_BASE:.2f} (으)로 설정합니다.")
         
         mesh_scaled = mesh_original.copy()
         mesh_scaled.apply_scale(CONFIG['xy_sampling_scale'])
-        print(f"샘플링용 {CONFIG['xy_sampling_scale']*100}% 축소 모델 생성 완료.")
+        print(f"모델 생성 완료.")
 
         # --- 3. 가우시안 분포를 이용한 중앙 집중형 포인트 생성 ---
         # 모델의 중심점과 크기(표준편차 계산용)를 구함
