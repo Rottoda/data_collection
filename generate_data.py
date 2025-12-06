@@ -119,6 +119,7 @@ def main():
             press_point_z = surface_z - actual_press_depth
             press_point_scaled = np.array([surface_pt[0], surface_pt[1], press_point_z])
             robot_target_points.append(press_point_scaled + CONFIG['robot_origin_offset'])
+            relative_points.append([surface_pt[0], surface_pt[1], -actual_press_depth])
 
 
         robot_target_points = np.array(robot_target_points)
