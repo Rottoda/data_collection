@@ -120,3 +120,7 @@ def main():
         mesh_scaled = mesh_original.copy()
         mesh_scaled.apply_scale(CONFIG['xy_sampling_scale'])
         print(f"샘플링용 모델 생성 완료.")
+
+        # Ray Casting을 위한 메쉬 바운딩 박스 정보 미리 계산
+        min_bound, max_bound = mesh_scaled.bounds
+        ray_start_z = max_bound[2] + 5 # 메쉬 최고점보다 5mm 위에서 레이 시작
