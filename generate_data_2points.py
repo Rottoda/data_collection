@@ -196,6 +196,9 @@ def main():
                 potential_depth_B = z_surf_B - robot_z_scaled
                 max_possible_depth_B = z_surf_B - Z_BASE - CONFIG["bottom_safety_margin_mm"]
                 actual_depth_B = np.maximum(0, np.minimum(potential_depth_B, max_possible_depth_B))
+                
+                rel_B = [target_x_B, target_y_B, -actual_depth_B]
+                vis_B = np.array([target_x_B, target_y_B, z_surf_B - actual_depth_B])
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
