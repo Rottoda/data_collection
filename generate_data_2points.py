@@ -182,6 +182,12 @@ def main():
             robot_z_scaled = z_surface_highest - actual_robot_travel_depth
 
             if is_A_valid:
+                potential_depth_A = z_surf_A - robot_z_scaled
+                max_possible_depth_A = z_surf_A - Z_BASE - CONFIG["bottom_safety_margin_mm"]
+                actual_depth_A = np.maximum(0, np.minimum(potential_depth_A, max_possible_depth_A))
+                
+                rel_A = [target_x_A, target_y_A, -actual_depth_A]
+                vis_A = np.array([target_x_A, target_y_A, z_surf_A - actual_depth_A])
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
