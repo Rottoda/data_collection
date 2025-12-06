@@ -175,9 +175,11 @@ def main():
                 z_surface_highest = surface_midpoint[2]
             else:
                 z_surface_highest = max(valid_z_values)
-                
+
             available_depth = z_surface_highest - Z_BASE - CONFIG["bottom_safety_margin_mm"]
             actual_robot_travel_depth = np.maximum(0, np.minimum(desired_depth, available_depth))
+            
+            robot_z_scaled = z_surface_highest - actual_robot_travel_depth
 
             relative_points_A_list.append(rel_A)
             relative_points_B_list.append(rel_B)
