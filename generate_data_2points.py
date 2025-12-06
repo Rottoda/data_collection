@@ -158,3 +158,6 @@ def main():
             
             target_A_xy = np.array([target_x_A, target_y_A])
             target_B_xy = np.array([target_x_B, target_y_B])
+
+            z_surf_A = get_surface_z_at_xy(mesh_scaled, target_A_xy, ray_start_z)
+            z_surf_B = get_surface_z_at_xy(mesh_scaled, target_B_xy, ray_start_z)
