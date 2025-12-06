@@ -25,13 +25,14 @@ CONFIG = {
     "central_focus_strength": 0.15,
 
     # 누르는 깊이 범위 (mm)
-    "min_press_depth_mm": 2.0,
-    "max_press_depth_mm": 2.5,
+    "min_press_depth_mm": 0.5,
+    "max_press_depth_mm": 1.0,
 
-    # === 2점 인덴터 설정 ===
-    "fixed_indenter_distance_mm": 10.5, 
+    # === [수정] 2점 인덴터 설정 ===
+    "fixed_indenter_distance_mm": 12.0,
     "fixed_indenter_angle_deg": 0.0,
     
+    "bottom_safety_margin_mm": 1.0
 }
 # =================================================================
 
