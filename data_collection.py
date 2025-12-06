@@ -120,7 +120,6 @@ class FT_NI:
         print("FT Sensor task closed.")
 
 
-# 전역 변수
 current_actual = None
 algorithm_queue = None
 enableStatus_robot = None
