@@ -96,9 +96,9 @@ def get_surface_z_at_xy(mesh, xy_point, default_z, z_offset=5):
     )
     
     if len(locations) > 0:
-        return locations[0][2] 
+        return locations[0][2] # 첫 번째 충돌 지점의 Z 좌표
     else:
-        return np.nan 
+        return np.nan
 
 def main():
     """
