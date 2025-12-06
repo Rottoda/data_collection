@@ -115,6 +115,7 @@ def main():
             surface_z = surface_pt[2]
             desired_depth = random.uniform(CONFIG['min_press_depth_mm'], CONFIG['max_press_depth_mm'])
             available_depth = surface_z - Z_BASE - CONFIG['bottom_safety_margin_mm']
+            actual_press_depth = np.maximum(0, np.minimum(desired_depth, available_depth))
 
         robot_target_points = np.array(robot_target_points)
         print("절대/상대 좌표 계산 완료.")
