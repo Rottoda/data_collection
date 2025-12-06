@@ -150,7 +150,7 @@ def main():
 
         # for 루프 사용
         for surface_midpoint in surface_midpoints:
-            depth = random.uniform(CONFIG['min_press_depth_mm'], CONFIG['max_press_depth_mm'])
+            desired_depth = random.uniform(CONFIG['min_press_depth_mm'], CONFIG['max_press_depth_mm'])
 
             target_x_A = surface_midpoint[0] + half_dist * np.cos(angle_rad)
             target_y_A = surface_midpoint[1] + half_dist * np.sin(angle_rad)
