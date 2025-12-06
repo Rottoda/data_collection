@@ -34,3 +34,9 @@ CONFIG = {
 }
 
 # =====================================================================
+
+# 프로젝트 루트 경로를 sys.path에 추가하여 모듈을 찾을 수 있도록 함
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# 필요한 모듈 임포트
+from TCP_IP_4Axis_Python.dobot_api import DobotApiDashboard, DobotApi, DobotApiMove, MyType, alarmAlarmJsonFile
