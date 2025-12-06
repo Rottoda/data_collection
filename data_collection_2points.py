@@ -211,3 +211,16 @@ def CaptureImg(cap, origin_dir, bin_dir, index):
         print(f"  > 이미지 저장 완료: {img_filename}")
     else:
         print("카메라 프레임 캡처에 최종 실패했습니다.")
+if __name__ == "__main__":
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        script_dir = os.getcwd()
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    session_dir = os.path.join(script_dir, "collected_images", f"session_{timestamp}")
+    origin_dir = os.path.join(session_dir, "origin")
+    bin_dir = os.path.join(session_dir, "bin")
+    os.makedirs(origin_dir, exist_ok=True)
+    os.makedirs(bin_dir, exist_ok=True)
+    print(f"[INFO] 이미지 저장 디렉토리: {session_dir}")
