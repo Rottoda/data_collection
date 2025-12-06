@@ -38,7 +38,7 @@ def visualize_results(mesh, absolute_points, origin_offset, save_path):
     ax = fig.add_subplot(111, projection='3d')
 
     mesh_vertices_local = mesh.vertices
-    absolute_points_local = absolute_points - (origin_offset + np.array([0,0,CONFIG['manual_z_correction']]))
+    absolute_points_local = absolute_points - origin_offset
 
     ax.add_collection3d(plt.tripcolor(
         mesh_vertices_local[:, 0], mesh_vertices_local[:, 1], mesh_vertices_local[:, 2],
