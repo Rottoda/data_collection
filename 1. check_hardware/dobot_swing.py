@@ -4,7 +4,6 @@ import threading
 import numpy as np
 from time import sleep, time
 
-# 제공된 코드의 Dobot API를 사용하기 위한 import
 # 'TCP_IP_4Axis_Python' 폴더가 이 스크립트와 동일한 상위 폴더에 있다고 가정합니다.
 # 경로가 다른 경우, 이 부분을 적절히 수정해야 합니다.
 try:
